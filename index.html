@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MatchKin Skin Quiz</title>
+<style>
+  :root { --ink:#35464a; --muted:#657579; --rose:#bf897d; --pale:#f7f2ef; --line:#e6ded9; --white:#fff; }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:20px; font-family:Arial,Helvetica,sans-serif; color:var(--ink); background:transparent; }
+  .mk-wrap { max-width:820px; margin:0 auto; }
+  .mk-header { text-align:center; padding:22px 18px; background:var(--pale); border-radius:18px; margin-bottom:20px; }
+  .mk-header h1 { margin:0 0 8px; font-size:30px; letter-spacing:1px; }
+  .mk-header p { margin:0; color:var(--muted); line-height:1.5; }
+  .mk-progress { height:7px; background:#eee6e1; border-radius:20px; overflow:hidden; margin:18px 0 6px; }
+  .mk-progress span { display:block; height:100%; width:0; background:var(--rose); transition:width .2s; }
+  .mk-step-count { color:var(--muted); font-size:13px; text-align:right; margin-bottom:14px; }
+  .mk-card { border:1px solid var(--line); border-radius:16px; padding:22px; margin:14px 0; background:var(--white); }
+  .mk-card h2 { margin:0 0 8px; font-size:21px; }
+  .mk-help { color:var(--muted); line-height:1.5; margin:0 0 16px; font-size:14px; }
+  .mk-options { display:grid; gap:10px; }
+  .mk-option { display:flex; align-items:flex-start; gap:10px; padding:12px 13px; border:1px solid var(--line); border-radius:11px; cursor:pointer; line-height:1.4; }
+  .mk-option:has(input:checked) { border-color:var(--rose); background:#fbf6f3; }
+  .mk-option input { margin-top:3px; accent-color:var(--rose); }
+  .mk-field { display:block; width:100%; margin-top:8px; padding:12px; border:1px solid var(--line); border-radius:10px; font:inherit; color:var(--ink); background:#fff; }
+  .mk-actions { display:flex; justify-content:space-between; gap:10px; margin:18px 0; }
+  .mk-btn { border:0; border-radius:999px; padding:12px 22px; font-weight:700; cursor:pointer; font-size:15px; }
+  .mk-primary { background:var(--ink); color:white; }
+  .mk-secondary { background:#eee8e4; color:var(--ink); }
+  .mk-btn:disabled { opacity:.45; cursor:not-allowed; }
+  .mk-error { color:#9a342b; font-size:14px; margin:10px 0 0; }
+  .mk-hidden { display:none !important; }
+  .mk-results h2 { margin-top:0; }
+  .mk-notice { padding:14px 16px; border-radius:12px; background:#fff6e8; border:1px solid #eed8b6; line-height:1.5; margin:14px 0; font-size:14px; }
+  .mk-product { border:1px solid var(--line); border-radius:13px; padding:16px; margin:12px 0; }
+  .mk-product h3 { margin:0 0 5px; font-size:17px; }
+  .mk-meta { color:var(--muted); font-size:13px; margin-bottom:8px; }
+  .mk-product p { margin:7px 0; line-height:1.45; font-size:14px; }
+  .mk-buy { display:inline-block; margin-top:8px; text-decoration:none; color:white; background:var(--ink); border-radius:999px; padding:9px 15px; font-size:13px; font-weight:700; }
+  .mk-boxlist { color:var(--muted); font-size:14px; line-height:1.6; }
+  .mk-footer { color:var(--muted); font-size:12px; text-align:center; margin:22px 0 4px; line-height:1.5; }
+  @media(max-width:520px) { body{padding:10px} .mk-card{padding:16px} .mk-header h1{font-size:25px} }
+</style>
+</head>
+<body>
+<div class="mk-wrap">
+  <header class="mk-header">
+    <h1>MatchKin</h1>
+    <p>Personalized skincare, simplified.<br>Answer a few questions to see a suggested product routine.</p>
+  </header>
+
+  <div id="quiz">
+    <div class="mk-progress"><span id="progressBar"></span></div>
+    <div class="mk-step-count" id="stepCount">Question 1 of 11</div>
+    <form id="quizForm">
+      <section class="mk-card" data-step="0">
+        <h2>1. Who is this box for?</h2>
+        <p class="mk-help">Age restrictions are applied before product recommendations.</p>
+        <div class="mk-options">
+          <label class="mk-option"><input type="radio" name="who" value="adult" required> Adult (18+)</label>
+          <label class="mk-option"><input type="radio" name="who" value="teen"> Teen (13–17)</label>
+          <label class="mk-option"><input type="radio" name="who" value="child"> Child (under 13)</label>
+          <label class="mk-option"><input type="radio" name="who" value="gift"> Gift</label>
+        </div>
+        <div id="giftFields" class="mk-hidden">
+          <p class="mk-help" style="margin-top:14px">For a gift, enter the recipient's age group and continue with their skin answers.</p>
+          <select class="mk-field" id="giftAge">
+            <option value="">Choose recipient's age group</option>
+            <option value="adult">Adult (18+)</option>
+            <option value="teen">Teen (13–17)</option>
+            <option value="child">Child (under 13)</option>
+          </select>
+        </div>
+      </section>
+
+      <section class="mk-card mk-hidden" data-step="1">
+        <h2>2. An hour after washing, how does your skin feel?</h2>
+        <div class="mk-options">
+          <label class="mk-option"><input type="radio" name="cleanserFeel" value="dry" required> Tight or flaky</label>
+          <label class="mk-option"><input type="radio" name="cleanserFeel" value="reactive"> Stings or turns red</label>
+          <label class="mk-option"><input type="radio" name="cleanserFeel" value="comfortable"> Comfortable or a bit mixed</label>
+          <label class="mk-option"><input type="radio" name="cleanserFeel" value="clogged"> Shiny, clogged, or blackheads</label>
+        </div>
+      </section>
+
+      <section class="mk-card mk-hidden" data-step="2">
+        <h2>3. By midday, how does your skin feel?</h2>
+        <div class="mk-options">
+          <label class="mk-option"><input type="radio" name="moistureFeel" value="dry" required> Dry or tight</label>
+          <label class="mk-option"><input type="radio" name="moistureFeel" value="oily"> Oily or shiny</label>
+          <label class="mk-option"><input type="radio" name="moistureFeel" value="combo"> Oily in the T-zone, dry elsewhere</label>
+          <label class="mk-option"><input type="radio" name="moistureFeel" value="reactive"> Red or reactive</label>
+        </div>
+      </section>
+
+      <section class="mk-card mk-hidden" data-step="3">
+        <h2>4. How does your skin handle scrubs?</h2>
+        <p class="mk-help">This helps choose the Level 2 exfoliating step, when appropriate.</p>
+        <div class="mk-options">
+          <label class="mk-option"><input type="radio" name="scrubFeel" value="fine" required> Fine, I want smoother skin</label>
+          <label class="mk-option"><input type="radio" name="scrubFeel" value="clogged"> Prone to clogged pores</label>
+          <label class="mk-option"><input type="radio" name="scrubFeel" value="sensitive"> Sensitive</label>
+        </div>
+      </section>
+
+      <section class="mk-card mk-hidden" data-step="4">
+        <h2>5. What's your climate and sun exposure?</h2>
+        <div class="mk-options">
+          <label class="mk-option"><input type="radio" name="climate" value="dry" required> Dry or cold air</label>
+          <label class="mk-option"><input type="radio" name="climate" value="city"> City or polluted</label>
+          <label class="mk-option"><input type="radio" name="climate" value="humid"> Humid or mostly indoors</label>
+        </div>
+      </section>
+
+      <section class="mk-card mk-hidden" data-step="5">
+        <h2>6. What are your main concerns?</h2>
+        <p class="mk-help">Choose up to 2.</p>
+        <div class="mk-options" id="concernOptions">
+          <label class="mk-option"><input type="checkbox" name="concerns" value="breakouts"> Breakouts</label>
+          <label class="mk-option"><input type="checkbox" name="concerns" value="dullness"> Dullness or dark spots</label>
+          <label class="mk-option"><input type="checkbox" name="concerns" value="redness"> Redness or sensitivity</label>
+          <label class="mk-option"><input type="checkbox" name="concerns" value="dehydration"> Dryness or dehydration</label>
+          <label class="mk-option"><input type="checkbox" name="concerns" value="texture"> Rough texture</label>
+        </div>
+      </section>
+
+      <section class="mk-card mk-hidden" data-step="6">
+        <h2>7. What's your top goal?</h2>
+        <div class="mk-options">
+          <label class="mk-option"><input type="radio" name="goal" value="glow" required> Glow or a balanced complexion</label>
+          <label class="mk-option"><input type="radio" name="goal" value="clear" > Clearer skin</label>
+          <label class="mk-option"><input type="radio" name="goal" value="hydration"> Deep hydration</label>
+          <label class="mk-option"><input type="radio" name="goal" value="tone"> Even tone</label>
+        </div>
+      </section>
+
+      <section class="mk-card mk-hidden" data-step="7">
+        <h2>8. Which ingredients do you want to avoid?</h2>
+        <p class="mk-help">Select any that apply. Add known allergies or other ingredients below.</p>
+        <div class="mk-options">
+          <label class="mk-option"><input type="checkbox" name="avoid" value="Fragrance"> Fragrance</label>
+          <label class="mk-option"><input type="checkbox" name="avoid" value="Alcohol"> Alcohol</label>
+          <label class="mk-option"><input type="checkbox" name="avoid" value="Essential oils"> Essential oils</label>
+          <label class="mk-option"><input type="checkbox" name="avoid" value="Sulfates"> Sulfates</label>
+        </div>
+        <input class="mk-field" id="otherAvoid" type="text" placeholder="Other ingredients or known allergies (optional)">
+      </section>
+
+      <section class="mk-card mk-hidden" data-step="8">
+        <h2>9. How do you apply toner?</h2>
+        <div class="mk-options">
+          <label class="mk-option"><input type="radio" name="tonerMethod" value="pads" required> With cotton pads</label>
+          <label class="mk-option"><input type="radio" name="tonerMethod" value="hands"> With my hands</label>
+        </div>
+      </section>
+
+      <section class="mk-card mk-hidden" data-step="9">
+        <h2>10. Would you like to learn a new routine?</h2>
+        <div class="mk-options">
+          <label class="mk-option"><input type="radio" name="tutorial" value="video" required> Watch a video</label>
+          <label class="mk-option"><input type="radio" name="tutorial" value="read"> Read steps</label>
+          <label class="mk-option"><input type="radio" name="tutorial" value="gift"> It's a gift</label>
+        </div>
+        <input class="mk-field mk-hidden" id="giftMessage" type="text" maxlength="180" placeholder="Optional personal message for the Thank You Card">
+      </section>
+
+      <section class="mk-card mk-hidden" data-step="10">
+        <h2>11. How many steps will you realistically do?</h2>
+        <p class="mk-help">This selects your box level.</p>
+        <div class="mk-options">
+          <label class="mk-option"><input type="radio" name="level" value="1" required> 2 steps — KinBasics</label>
+          <label class="mk-option"><input type="radio" name="level" value="2"> 3 steps — KinPlus</label>
+          <label class="mk-option"><input type="radio" name="level" value="3"> 5 or more steps — KinComplete</label>
+        </div>
+      </section>
+    </form>
+    <p class="mk-error" id="errorMsg" role="alert"></p>
+    <div class="mk-actions">
+      <button type="button" class="mk-btn mk-secondary" id="backBtn" disabled>Back</button>
+      <button type="button" class="mk-btn mk-primary" id="nextBtn">Next</button>
+    </div>
+  </div>
+
+  <section id="results" class="mk-card mk-results mk-hidden" aria-live="polite">
+    <h2>Your MatchKin recommendations</h2>
+    <p id="resultIntro" class="mk-help"></p>
+    <div id="safetyNotices"></div>
+    <div id="productList"></div>
+    <h3>What's included in your box?</h3>
+    <div id="boxContents" class="mk-boxlist"></div>
+    <p id="routineNotes" class="mk-help"></p>
+    <div class="mk-actions">
+      <button type="button" class="mk-btn mk-secondary" id="restartBtn">Retake quiz</button>
+    </div>
+  </section>
+  <p class="mk-footer">MatchKin product suggestions are informational and are not medical advice. Stop using a product if it causes irritation. For persistent or severe skin concerns, speak with a qualified dermatologist.</p>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  const products = {
+    oat: {name:"Gentle Oat Milk Cleanser", sku:"MK-101", price:"$10.30", url:"https://portal.veinternational.org/storemanager/d5cc45952ec741bea6d7fdf75d87c3d3/buybuttons/f1c699a2-3f5c-48df-978d-a34ad55714cf/?page=1&fltr=*", why:"Your answers indicate tight, flaky, or reactive-feeling skin; this is the gentle cleanser specified in the MatchKin quiz."},
+    marine: {name:"Marine Hydration Moisturizer", sku:"MK-102", price:"$11.75", url:"https://portal.veinternational.org/storemanager/d5cc45952ec741bea6d7fdf75d87c3d3/buybuttons/51eba8e9-aec3-4104-9798-bf71fd45353f/?page=1&fltr=*", why:"You selected dry or tight skin."},
+    polish: {name:"Microderm Facial Polish Exfoliator", sku:"MK-103", price:"$12.40", url:"https://portal.veinternational.org/storemanager/d5cc45952ec741bea6d7fdf75d87c3d3/buybuttons/239394bf-c5a3-40c2-a082-b3bf428e94ad/?page=1&fltr=*", why:"You selected the smoother-skin option. Your quiz specifies using this exfoliating step once a week."},
+    green: {name:"Green Tea Calming Toner", sku:"MK-104", price:"$9.97", url:"https://portal.veinternational.org/storemanager/d5cc45952ec741bea6d7fdf75d87c3d3/buybuttons/3fb637b8-b60d-4dba-9b0e-8f93af4deb38/?page=1&fltr=*", why:"Your answers point to the calming-toner option."},
+    ha: {name:"Multi-Molecule Hyaluronic Acid Serum", sku:"MK-105", price:"$11.25", url:"https://portal.veinternational.org/storemanager/d5cc45952ec741bea6d7fdf75d87c3d3/buybuttons/9412c515-813a-4762-9b7d-0e4beb212977/?page=1&fltr=*", why:"This is the Hyaluronic Acid Serum included in every KinComplete box."},
+    cotton: {name:"Cotton Pad", sku:"MK-106", price:"$0.02", url:"https://portal.veinternational.org/storemanager/d5cc45952ec741bea6d7fdf75d87c3d3/buybuttons/232390e7-2e40-46b1-ba1d-8d56adc73726/?page=1&fltr=*", why:"Cotton pads are included in KinComplete; they can be an add-on for KinBasics or KinPlus."},
+    desert: {name:"Barrier Defense Desert Toner", sku:"MK-117", price:"$9.97", url:"https://portal.veinternational.org/storemanager/d5cc45952ec741bea6d7fdf75d87c3d3/buybuttons/e9c871f4-1c16-4a1a-abe9-d7ed7c094680/?page=1&fltr=*", why:"You selected dry or cold air, dryness, or dehydration."},
+    spot: {name:"Bio Clear Spot Treatment Serum", sku:"MK-122", price:"$11.25", url:"https://portal.veinternational.org/storemanager/d5cc45952ec741bea6d7fdf75d87c3d3/buybuttons/724a67ad-1466-488a-930a-627c48f782dc/?page=1&fltr=*", why:"You selected breakouts or clearer skin as a priority."},
+    biome: {name:"Biome Balance Lightweight Moisturizer", sku:"MK-120", price:"$11.75", url:"https://portal.veinternational.org/storemanager/d5cc45952ec741bea6d7fdf75d87c3d3/buybuttons/e676ac78-0c41-4255-a552-54d167bb11b0/?page=1&fltr=*", why:"You selected oily or shiny skin, or red/reactive-feeling skin."},
+    oil: {name:"Complexion Balancing Dry Oil Serum", sku:"MK-121", price:"$11.25", url:"https://portal.veinternational.org/storemanager/d5cc45952ec741bea6d7fdf75d87c3d3/buybuttons/4d6128f6-968b-4959-9da0-d59ba4cb3c89/?page=1&fltr=*", why:"You selected glow or a balanced complexion as your top goal."},
+    peptide: {name:"Peptide + Hydro Gel Cleanser", sku:"MK-116", price:"$10.30", url:"https://portal.veinternational.org/storemanager/d5cc45952ec741bea6d7fdf75d87c3d3/buybuttons/82c599fa-0bb0-4153-ae2f-531259d0e004/?page=1&fltr=*", why:"You selected comfortable or mixed-feeling skin."},
+    skin: {name:"Skin Balancing Moisturizer", sku:"MK-119", price:"$11.75", url:"https://portal.veinternational.org/storemanager/d5cc45952ec741bea6d7fdf75d87c3d3/buybuttons/0de89eca-b57a-433d-bd81-f0bc3521361e/?page=1&fltr=*", why:"You selected an oily T-zone with drier areas elsewhere."},
+    vitamin: {name:"Vitamin C Antioxidant Toner", sku:"MK-118", price:"$9.97", url:"https://portal.veinternational.org/storemanager/d5cc45952ec741bea6d7fdf75d87c3d3/buybuttons/5ffc6618-7ed3-4a1b-9c81-9e84884caa77/?page=1&fltr=*", why:"You selected city/pollution, dullness/dark spots, or even tone."}
+  };
+  const packaging = [
+    "Shipping Box (MK-108)", "Tissue Paper (MK-109)", "Crinkle Filler (MK-110)",
+    "Sticker Seal (MK-114)", "Shipping-Label Material (MK-113)",
+    "QR Tutorial Card — not separately listed in the supplied VE Hub catalog",
+    "Thank-You Card (MK-112)"
+  ];
+  const steps = Array.from(document.querySelectorAll("[data-step]"));
+  let current = 0;
+  const $ = id => document.getElementById(id);
+  const form = $("quizForm");
+  const selected = name => form.querySelector('input[name="'+name+'"]:checked')?.value || "";
+  const checked = name => Array.from(form.querySelectorAll('input[name="'+name+'"]:checked')).map(x=>x.value);
+  const safeText = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  function showStep(n) {
+    current = n;
+    steps.forEach((el,i)=>el.classList.toggle("mk-hidden",i!==n));
+    $("progressBar").style.width = ((n+1)/steps.length*100)+"%";
+    $("stepCount").textContent = "Question "+(n+1)+" of "+steps.length;
+    $("backBtn").disabled = n===0;
+    $("nextBtn").textContent = n===steps.length-1 ? "Get My Results" : "Next";
+    $("errorMsg").textContent = "";
+  }
+  form.querySelectorAll('input[name="who"]').forEach(el=>el.addEventListener("change",()=>{
+    $("giftFields").classList.toggle("mk-hidden",selected("who")!=="gift");
+  }));
+  form.querySelectorAll('input[name="tutorial"]').forEach(el=>el.addEventListener("change",()=>{
+    $("giftMessage").classList.toggle("mk-hidden",selected("tutorial")!=="gift");
+  }));
+  form.querySelectorAll('input[name="concerns"]').forEach(el=>el.addEventListener("change",()=>{
+    if(checked("concerns").length>2){el.checked=false;$("errorMsg").textContent="Please choose no more than 2 concerns.";}
+    else $("errorMsg").textContent="";
+  }));
+  $("backBtn").addEventListener("click",()=>{if(current>0)showStep(current-1);});
+  $("nextBtn").addEventListener("click",()=>{
+    if(!validateStep()) return;
+    if(current<steps.length-1) showStep(current+1);
+    else buildResults();
+  });
+  function validateStep(){
+    const active=steps[current];
+    const radios=Array.from(active.querySelectorAll('input[type="radio"][required]'));
+    if(radios.length && !radios.some(x=>x.checked)){ $("errorMsg").textContent="Please select an answer before continuing."; return false; }
+    if(current===0 && selected("who")==="gift" && !$("giftAge").value){$("errorMsg").textContent="Please choose the recipient's age group.";return false;}
+    if(current===5 && checked("concerns").length>2){$("errorMsg").textContent="Please choose no more than 2 concerns.";return false;}
+    return true;
+  }
+  function addProduct(list,key,reason){
+    if(!list.some(p=>p.key===key)) list.push({key,reason:reason||products[key].why});
+  }
+  function buildResults(){
+    const whoChoice=selected("who");
+    const age=whoChoice==="gift"?$("giftAge").value:whoChoice;
+    const level=Number(selected("level"));
+    const concerns=checked("concerns");
+    const list=[];
+    const notices=[];
+    const missing=[];
+    const isChild=age==="child", isTeen=age==="teen";
+
+    // Cleanser mapping. The AHA & BHA cleanser in the supplied quiz is not in the supplied VE Hub catalog.
+    if(isChild || selected("cleanserFeel")==="dry" || selected("cleanserFeel")==="reactive") addProduct(list,"oat");
+    else if(selected("cleanserFeel")==="comfortable") addProduct(list,"peptide");
+    else missing.push("Your answer points to the AHA & BHA Exfoliating Cleanser, but that item was not present in the VE Hub product list supplied. No substitute has been guessed.");
+
+    // Moisturizer mapping.
+    const mf=selected("moistureFeel");
+    if(isChild || mf==="dry") addProduct(list,"marine");
+    else if(mf==="oily" || mf==="reactive") addProduct(list,"biome");
+    else addProduct(list,"skin");
+
+    // Level 2 exfoliation slot.
+    if(level>=2 && !isChild){
+      if(selected("scrubFeel")==="fine" || selected("scrubFeel")==="sensitive"){
+        addProduct(list,"polish", selected("scrubFeel")==="sensitive"
+          ? "Your answer indicates sensitivity. The quiz says to use this only once weekly after a patch test; if unsure, skip this step and ask the MatchKin team."
+          : products.polish.why);
+      } else {
+        missing.push("Your clogged-pore answer points to the AHA & BHA cleanser as the exfoliating step, but it is not listed in the supplied VE Hub catalog. No substitute exfoliant has been selected.");
+      }
+    }
+    if(level>=3){
+      // Toner votes: Q5 plus relevant Q6 concerns and Q7 even-tone goal.
+      const votes={desert:0, vitamin:0, green:0};
+      const climate=selected("climate");
+      if(climate==="dry") votes.desert++;
+      if(climate==="city") votes.vitamin++;
+      if(climate==="humid") votes.green++;
+      if(concerns.includes("dullness")) votes.vitamin++;
+      if(concerns.includes("redness")) votes.green++;
+      if(concerns.includes("dehydration")) votes.desert++;
+      if(selected("goal")==="tone") votes.vitamin++;
+      const max=Math.max(...Object.values(votes));
+      const winner=Object.keys(votes).find(k=>votes[k]===max) || "green";
+      addProduct(list,winner);
+      addProduct(list,"ha");
+      addProduct(list,"cotton");
+
+      if(selected("tonerMethod")==="pads") {
+        // Cotton pads are already included in Level 3.
+      }
+    } else if(selected("tonerMethod")==="pads") {
+      notices.push("You selected cotton pads. They are not part of KinBasics or KinPlus in the supplied box contents; ask MatchKin about adding them.");
+    }
+
+    // Child restrictions override every other product choice.
+    if(isChild){
+      const allowed=new Set(["oat","marine","green","ha","cotton"]);
+      for(let i=list.length-1;i>=0;i--) if(!allowed.has(list[i].key)) list.splice(i,1);
+      if(level>=2) notices.push("For a child under 13, the exfoliating step has been omitted. The supplied age rule is gentle-only products and requires a parent account.");
+      if(level===3){
+        if(!list.some(p=>p.key==="green")) addProduct(list,"green","The child age rule permits Green Tea Calming Toner only.");
+        if(!list.some(p=>p.key==="ha")) addProduct(list,"ha");
+        if(!list.some(p=>p.key==="cotton")) addProduct(list,"cotton");
+      }
+      notices.push("A parent or guardian account is required for a child under 13. This quiz is not a substitute for a parent's review of the product ingredients.");
+    } else if(isTeen && level>=2){
+      notices.push("Teen rule: any exfoliating product is limited to once a week. Do not combine multiple exfoliating steps in the same week's routine.");
+    }
+
+    // Q6 and Q7 influence the bonus item in KinComplete.
+    if(level===3 && !isChild){
+      if(concerns.includes("breakouts") || selected("goal")==="clear") addProduct(list,"spot");
+      else if(selected("goal")==="glow") addProduct(list,"oil");
+      else if(selected("goal")==="hydration") {
+        // HA is already included in every KinComplete box; no second bonus serum is added.
+        notices.push("Your deep-hydration goal matches the Hyaluronic Acid Serum, which is already included in KinComplete. Your answers did not identify a separate Dry Oil or Spot Treatment bonus.");
+      } else {
+        notices.push("Your answers did not identify a Dry Oil or Spot Treatment bonus. The MatchKin team should confirm the bonus selection before fulfillment.");
+      }
+    }
+
+    // Q6 rough texture adds the listed exfoliator only when a Level 2+ exfoliation slot exists and the selected scrub answer supports it.
+    if(level>=2 && concerns.includes("texture") && !isChild && selected("scrubFeel")==="fine") addProduct(list,"polish");
+
+    // Ingredient list data was not included, so never claim this filter has verified compatibility.
+    const avoid=checked("avoid");
+    const other=$("otherAvoid").value.trim();
+    if(avoid.length || other){
+      notices.push("Ingredient review required: your selected avoid-list items are "+[...avoid,other].filter(Boolean).join(", ")+". Ingredient lists for the products were not included in the supplied catalog, so this quiz cannot verify or safely filter these products. Do not purchase/use a suggested product until MatchKin has checked its full ingredient list against your avoid list and any known allergies.");
+    }
+
+    const name=level===1?"KinBasics":level===2?"KinPlus":"KinComplete";
+    $("resultIntro").textContent="Based on your answers, your selected box is "+name+". These are the product matches identified by the quiz rules.";
+    $("safetyNotices").innerHTML=notices.map(n=>'<div class="mk-notice">'+safeText(n)+'</div>').join("");
+    $("productList").innerHTML=list.map(p=>{
+      const x=products[p.key];
+      return '<article class="mk-product"><h3>'+safeText(x.name)+'</h3><div class="mk-meta">'+safeText(x.sku)+' · '+safeText(x.price)+'</div><p>'+safeText(p.reason||x.why)+'</p><a class="mk-buy" href="'+x.url+'" target="_blank" rel="noopener noreferrer">View VE Hub product</a></article>';
+    }).join("") || '<p>No catalog product could be matched to these answers. Please contact MatchKin before placing an order.</p>';
+    if(missing.length) $("safetyNotices").insertAdjacentHTML("beforeend",missing.map(n=>'<div class="mk-notice">'+safeText(n)+'</div>').join(""));
+
+    let contents=level===1?"1 cleanser + 1 moisturizer":level===2?"KinBasics contents + 1 exfoliating step":"KinPlus contents + toner + Hyaluronic Acid Serum + Cotton Pads + 1 bonus (Dry Oil or Spot Treatment)";
+    if(isChild && level>=2) contents += " — the exfoliating step and non-gentle bonus are omitted under the child gentle-only rule; parent account required.";
+    $("boxContents").textContent=contents+". Every box also includes: "+packaging.join(", ")+".";
+    $("routineNotes").textContent="Tutorial preference: "+(selected("tutorial")==="video"?"video":selected("tutorial")==="read"?"written steps":"gift message")+". "+(selected("tutorial")==="gift" && $("giftMessage").value.trim() ? "Gift message: "+$("giftMessage").value.trim()+". " : "")+(selected("tonerMethod")==="hands"?"Toner application preference: press toner in with hands.":"");
+    $("quiz").classList.add("mk-hidden");
+    $("results").classList.remove("mk-hidden");
+  }
+  $("restartBtn").addEventListener("click",()=>{
+    form.reset();
+    $("giftFields").classList.add("mk-hidden");
+    $("giftMessage").classList.add("mk-hidden");
+    $("results").classList.add("mk-hidden");
+    $("quiz").classList.remove("mk-hidden");
+    showStep(0);
+  });
+  showStep(0);
+})();
+</script>
+</body>
+</html>
