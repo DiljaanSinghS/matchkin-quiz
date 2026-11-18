@@ -225,8 +225,13 @@
   let current = 0;
   const $ = id => document.getElementById(id);
   const form = $("quizForm");
-  const selected = name => form.querySelector('input[name="'+name+'"]:checked')?.value || "";
-  const checked = name => Array.from(form.querySelectorAll('input[name="'+name+'"]:checked')).map(x=>x.value);
+  // Read selections from the input elements directly. This avoids relying on
+  // :checked selector behavior inside embedded Wix HTML components.
+  const selected = name => {
+    const input = Array.from(form.querySelectorAll('input[type="radio"]')).find(x=>x.name===name && x.checked);
+    return input ? input.value : "";
+  };
+  const checked = name => Array.from(form.querySelectorAll('input[type="checkbox"]')).filter(x=>x.name===name && x.checked).map(x=>x.value);
   const safeText = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   function showStep(n) {
     current = n;
@@ -257,7 +262,11 @@
     const active=steps[current];
     const radioGroups=[...new Set(Array.from(active.querySelectorAll('input[type="radio"]')).map(x=>x.name))];
     for(const group of radioGroups){
-      if(!active.querySelector('input[name="'+group+'"]:checked')){ $("errorMsg").textContent="Please select an answer before continuing."; return false; }
+      const groupInputs=Array.from(active.querySelectorAll('input[type="radio"]')).filter(x=>x.name===group);
+      if(!groupInputs.some(x=>x.checked)){
+        $("errorMsg").textContent="Please tap one of the answer choices before continuing.";
+        return false;
+      }
     }
     if(current===0 && selected("who")==="gift" && !$("giftAge").value){$("errorMsg").textContent="Please choose the recipient's age group.";return false;}
     if(current===5 && checked("concerns").length>2){$("errorMsg").textContent="Please choose no more than 2 concerns.";return false;}
