@@ -21,6 +21,7 @@
   .mk-options { display:grid; gap:10px; }
   .mk-option { display:flex; align-items:flex-start; gap:10px; padding:12px 13px; border:1px solid var(--line); border-radius:11px; cursor:pointer; line-height:1.4; }
   .mk-option:has(input:checked) { border-color:var(--rose); background:#fbf6f3; }
+  .mk-option input:checked { accent-color:var(--rose); }
   .mk-option input { margin-top:3px; accent-color:var(--rose); }
   .mk-field { display:block; width:100%; margin-top:8px; padding:12px; border:1px solid var(--line); border-radius:10px; font:inherit; color:var(--ink); background:#fff; }
   .mk-actions { display:flex; justify-content:space-between; gap:10px; margin:18px 0; }
@@ -254,8 +255,10 @@
   });
   function validateStep(){
     const active=steps[current];
-    const radios=Array.from(active.querySelectorAll('input[type="radio"][required]'));
-    if(radios.length && !radios.some(x=>x.checked)){ $("errorMsg").textContent="Please select an answer before continuing."; return false; }
+    const radioGroups=[...new Set(Array.from(active.querySelectorAll('input[type="radio"]')).map(x=>x.name))];
+    for(const group of radioGroups){
+      if(!active.querySelector('input[name="'+group+'"]:checked')){ $("errorMsg").textContent="Please select an answer before continuing."; return false; }
+    }
     if(current===0 && selected("who")==="gift" && !$("giftAge").value){$("errorMsg").textContent="Please choose the recipient's age group.";return false;}
     if(current===5 && checked("concerns").length>2){$("errorMsg").textContent="Please choose no more than 2 concerns.";return false;}
     return true;
@@ -268,112 +271,160 @@
     const age=whoChoice==="gift"?$("giftAge").value:whoChoice;
     const level=Number(selected("level"));
     const concerns=checked("concerns");
-    const list=[];
-    const notices=[];
-    const missing=[];
-    const isChild=age==="child", isTeen=age==="teen";
-
-    // Cleanser mapping. The AHA & BHA cleanser in the supplied quiz is not in the supplied VE Hub catalog.
-    if(isChild || selected("cleanserFeel")==="dry" || selected("cleanserFeel")==="reactive") addProduct(list,"oat");
-    else if(selected("cleanserFeel")==="comfortable") addProduct(list,"peptide");
-    else {
-      addProduct(list,"peptide","You selected shiny, clogged-feeling skin. The current catalog does not list the AHA & BHA cleanser named in the original quiz plan, so this gentle cleanser is shown as the closest listed daily-cleanser option—not as an exfoliating treatment.");
-      notices.push("The AHA & BHA cleanser planned for clogged-pore answers is not in the current product catalog. MatchKin should confirm whether to add it; this quiz has not substituted an exfoliating cleanser.");
-    }
-
-    // Moisturizer mapping.
-    const mf=selected("moistureFeel");
-    if(isChild || mf==="dry") addProduct(list,"marine");
-    else if(mf==="oily" || mf==="reactive") addProduct(list,"biome");
-    else addProduct(list,"skin");
-
-    // Level 2 exfoliation slot.
-    if(level>=2 && !isChild){
-      if(selected("scrubFeel")==="fine"){
-        addProduct(list,"polish",products.polish.why);
-      } else if(selected("scrubFeel")==="sensitive"){
-        notices.push("You selected sensitive skin. No exfoliating product has been added, because the listed facial polish may not be suitable for your answer.");
-      } else {
-        notices.push("You selected clogged pores. The planned AHA & BHA product is not in the current catalog, so no exfoliating product has been guessed or added.");
-      }
-    }
-    if(level>=3){
-      // Toner votes: Q5 plus relevant Q6 concerns and Q7 even-tone goal.
-      const votes={desert:0, vitamin:0, green:0};
-      const climate=selected("climate");
-      if(climate==="dry") votes.desert++;
-      if(climate==="city") votes.vitamin++;
-      if(climate==="humid") votes.green++;
-      if(concerns.includes("dullness")) votes.vitamin++;
-      if(concerns.includes("redness")) votes.green++;
-      if(concerns.includes("dehydration")) votes.desert++;
-      if(selected("goal")==="tone") votes.vitamin++;
-      const max=Math.max(...Object.values(votes));
-      const winner=Object.keys(votes).find(k=>votes[k]===max) || "green";
-      addProduct(list,winner);
-      addProduct(list,"ha");
-      addProduct(list,"cotton");
-
-      if(selected("tonerMethod")==="pads") {
-        // Cotton pads are already included in Level 3.
-      }
-    } else if(selected("tonerMethod")==="pads") {
-      notices.push("You selected cotton pads. They are not part of KinBasics or KinPlus in the supplied box contents; ask MatchKin about adding them.");
-    }
-
-    // Child restrictions override every other product choice.
-    if(isChild){
-      const allowed=new Set(["oat","marine","green","ha","cotton"]);
-      for(let i=list.length-1;i>=0;i--) if(!allowed.has(list[i].key)) list.splice(i,1);
-      if(level>=2) notices.push("For a child under 13, the exfoliating step has been omitted. The supplied age rule is gentle-only products and requires a parent account.");
-      if(level===3){
-        if(!list.some(p=>p.key==="green")) addProduct(list,"green","The child age rule permits Green Tea Calming Toner only.");
-        if(!list.some(p=>p.key==="ha")) addProduct(list,"ha");
-        if(!list.some(p=>p.key==="cotton")) addProduct(list,"cotton");
-      }
-      notices.push("A parent or guardian account is required for a child under 13. This quiz is not a substitute for a parent's review of the product ingredients.");
-    } else if(isTeen && level>=2){
-      notices.push("Teen rule: any exfoliating product is limited to once a week. Do not combine multiple exfoliating steps in the same week's routine.");
-    }
-
-    // Q6 and Q7 influence the bonus item in KinComplete.
-    if(level===3 && !isChild){
-      if(concerns.includes("breakouts") || selected("goal")==="clear") addProduct(list,"spot");
-      else if(selected("goal")==="glow") addProduct(list,"oil");
-      else if(selected("goal")==="hydration") {
-        // HA is already included in every KinComplete box; no second bonus serum is added.
-        notices.push("Your deep-hydration goal matches the Hyaluronic Acid Serum, which is already included in KinComplete. Your answers did not identify a separate Dry Oil or Spot Treatment bonus.");
-      } else if((selected("goal")==="tone" || concerns.includes("dullness")) && !list.some(p=>p.key==="vitamin")){
-        addProduct(list,"vitamin","Your even-tone or dullness answer matches the Vitamin C Antioxidant Toner.");
-      } else {
-        notices.push("Your hydration, redness, or other selected priorities are already reflected in the core product matches. No extra bonus product has been added just to fill a slot.");
-      }
-    }
-
-    // Q6 rough texture adds the listed exfoliator only when a Level 2+ exfoliation slot exists and the selected scrub answer supports it.
-    if(level>=2 && concerns.includes("texture") && !isChild && selected("scrubFeel")==="fine") addProduct(list,"polish","You selected rough texture and said your skin handles the smoother-skin exfoliation option.");
-
-    // Ingredient list data was not included, so never claim this filter has verified compatibility.
     const avoid=checked("avoid");
-    const other=$("otherAvoid").value.trim();
-    if(avoid.length || other){
-      notices.push("Ingredient review required: your selected avoid-list items are "+[...avoid,other].filter(Boolean).join(", ")+". Ingredient lists for the products were not included in the supplied catalog, so this quiz cannot verify or safely filter these products. Do not purchase/use a suggested product until MatchKin has checked its full ingredient list against your avoid list and any known allergies.");
+    const otherAvoid=$("otherAvoid").value.trim();
+    const isChild=age==="child", isTeen=age==="teen";
+    const notices=[];
+    const slots={cleanser:[],moisturizer:[],exfoliator:[],toner:[],bonus:[]};
+
+    function vote(slot,key,reason,source){
+      slots[slot].push({key,reason:reason||products[key]?.why||"",source});
+    }
+    function winner(slot, fallback){
+      const votes=slots[slot];
+      if(!votes.length) return fallback||null;
+      const counts={};
+      votes.forEach(v=>counts[v.key]=(counts[v.key]||0)+1);
+      const max=Math.max(...Object.values(counts));
+      // Stable tie-break: the earliest answer in the quiz wins.
+      return votes.find(v=>counts[v.key]===max);
+    }
+    function showProduct(key,reason,extra){
+      const p=products[key];
+      return {key,name:p?.name||extra?.name||key,sku:p?.sku||"",price:p?.price||"",url:p?.url||"",reason:reason||p?.why||"",available:!!p?.url};
     }
 
-    const name=level===1?"KinBasics":level===2?"KinPlus":"KinComplete";
-    $("resultIntro").textContent="Based on your answers, your selected box is "+name+". These are the product matches identified by the quiz rules.";
-    $("safetyNotices").innerHTML=notices.map(n=>'<div class="mk-notice">'+safeText(n)+'</div>').join("");
-    $("productList").innerHTML=list.map(p=>{
-      const x=products[p.key];
-      return '<article class="mk-product"><h3>'+safeText(x.name)+'</h3><div class="mk-meta">'+safeText(x.sku)+' · '+safeText(x.price)+'</div><p>'+safeText(p.reason||x.why)+'</p><a class="mk-buy" href="'+x.url+'" target="_blank" rel="noopener noreferrer">View VE Hub product</a></article>';
-    }).join("") || '<p>No catalog product could be matched to these answers. Please contact MatchKin before placing an order.</p>';
-    if(missing.length) $("safetyNotices").insertAdjacentHTML("beforeend",missing.map(n=>'<div class="mk-notice">'+safeText(n)+'</div>').join(""));
+    // Q2: daily cleanser choice.
+    const cleanserAnswer=selected("cleanserFeel");
+    if(cleanserAnswer==="dry" || cleanserAnswer==="reactive") vote("cleanser","oat",null,"Q2");
+    if(cleanserAnswer==="comfortable") vote("cleanser","peptide",null,"Q2");
+    if(cleanserAnswer==="clogged") vote("cleanser","aha","You selected shiny, clogged-feeling skin. The planned AHA & BHA cleanser is the match for this answer, but it is not currently in the connected product catalog.","Q2");
 
-    let contents=level===1?"1 cleanser + 1 moisturizer":level===2?(selected("scrubFeel")==="fine"?"KinBasics contents + 1 exfoliating step":"KinBasics contents; no exfoliating product was added based on your sensitivity/clogged-pore answer"):"KinPlus contents + toner + Hyaluronic Acid Serum + Cotton Pads + a bonus product when your answers match one";
-    if(level>=3 && selected("scrubFeel")!=="fine") contents += " — no exfoliating product was added based on your answer.";
-    if(isChild && level>=2) contents += " — the exfoliating step and non-gentle bonus are omitted under the child gentle-only rule; parent account required.";
-    $("boxContents").textContent=contents+". Every box also includes: "+packaging.join(", ")+".";
-    $("routineNotes").textContent="Tutorial preference: "+(selected("tutorial")==="video"?"video":selected("tutorial")==="read"?"written steps":"gift message")+". "+(selected("tutorial")==="gift" && $("giftMessage").value.trim() ? "Gift message: "+$("giftMessage").value.trim()+". " : "")+(selected("tonerMethod")==="hands"?"Toner application preference: press toner in with hands.":selected("tonerMethod")==="pads"?"Toner application preference: cotton pads.":"")+(level<3?" Toner is not included in this box level.":"");
+    // Q3: moisturizer.
+    const moistureAnswer=selected("moistureFeel");
+    const moisturizerMap={dry:"marine",oily:"biome",combo:"skin",reactive:"biome"};
+    vote("moisturizer",moisturizerMap[moistureAnswer],"Your midday skin-feel answer determines this moisturizer match.","Q3");
+
+    // Q4: exfoliator slot. Clogged pores call for AHA + daily Peptide cleanser.
+    const scrubAnswer=selected("scrubFeel");
+    if(level>=2 && !isChild){
+      if(scrubAnswer==="fine") vote("exfoliator","polish","You chose the smoother-skin option. The quiz plan limits this polish to once a week.","Q4");
+      if(scrubAnswer==="clogged"){
+        vote("cleanser","peptide","Your clogged-pore exfoliation choice pairs the AHA & BHA step with Peptide + Hydro Gel Cleanser for daily cleansing.","Q4");
+        vote("exfoliator","aha","Your clogged-pore answer selects the AHA & BHA cleanser as the exfoliating step. It is not currently listed in the connected product catalog.","Q4");
+      }
+      if(scrubAnswer==="sensitive"){
+        if(level===3) vote("exfoliator","ha","You selected sensitive skin. The Hyaluronic Acid Serum is used in place of an exfoliator in this slot; it is already included in KinComplete.","Q4");
+        else notices.push("You selected sensitive skin, so no exfoliating product has been added to KinPlus. MatchKin can review whether a suitable swap is available.");
+      }
+    }
+
+    // Q6 rough texture can also vote for the exfoliator. Q4 wins a tie because it is the direct slot question.
+    if(level>=2 && !isChild && concerns.includes("texture")){
+      vote("exfoliator","polish","You selected rough texture. This is one vote for the Microderm Facial Polish, subject to your Q4 answer and age rule.","Q6");
+    }
+
+    // Q5, Q6 and Q7 vote for the Level 3 toner.
+    if(level===3){
+      const climate=selected("climate");
+      if(climate==="dry") vote("toner","desert","Your dry/cold climate answer matches this toner.","Q5");
+      if(climate==="city") vote("toner","vitamin","Your city/pollution answer matches this toner.","Q5");
+      if(climate==="humid") vote("toner","green","Your humid/mostly indoors answer matches this toner.","Q5");
+      if(concerns.includes("dullness")) vote("toner","vitamin","You selected dullness or dark spots.","Q6");
+      if(concerns.includes("redness")) vote("toner","green","You selected redness or sensitivity.","Q6");
+      if(concerns.includes("dehydration")) vote("toner","desert","You selected dryness or dehydration.","Q6");
+      if(selected("goal")==="tone") vote("toner","vitamin","You selected even tone as your top goal.","Q7");
+      vote("toner","green","Green Tea Calming Toner is the gentle fallback if no toner preference receives a vote.","fallback");
+    }
+
+    // Bonus item: count Q6 breakouts and Q7 goal votes; Q7 breaks ties.
+    if(level===3 && !isChild){
+      if(concerns.includes("breakouts")) vote("bonus","spot","You selected breakouts as a main concern.","Q6");
+      if(selected("goal")==="clear") vote("bonus","spot","You selected clearer skin as your top goal.","Q7");
+      if(selected("goal")==="glow") vote("bonus","oil","You selected glow or a balanced complexion.","Q7");
+      if(!slots.bonus.length) vote("bonus","oil","No breakout/clear-skin bonus was selected, so the Dry Oil is the default bonus option.","default");
+      vote("bonus","oil","Dry Oil is the available glow/balance bonus option.","default");
+    }
+
+    // Age safety overrides every product slot.
+    if(isChild){
+      notices.push("Child under 13: parent/guardian account required. Only the gentle products listed in MatchKin's child rule are eligible.");
+      if(level>=2) notices.push("The exfoliator is removed under the child gentle-only rule.");
+      slots.cleanser=[{key:"oat",reason:"The child rule allows only the Gentle Oat Milk Cleanser."}];
+      slots.moisturizer=[{key:"marine",reason:"The child rule allows only the Marine Hydration Moisturizer."}];
+      slots.exfoliator=[];
+      slots.toner=level===3?[{key:"green",reason:"The child rule allows Green Tea Calming Toner only."}]:[];
+      slots.bonus=[];
+    } else if(isTeen && level>=2){
+      notices.push("Teen safety rule: use no more than one exfoliating product once a week. The AHA & BHA cleanser and Microderm Polish must never be combined in the same week's routine.");
+      // The quiz chooses one exfoliating slot only. If sensitivity is selected, omit rather than combine.
+      if(scrubAnswer==="sensitive") slots.exfoliator=[];
+    }
+
+    const chosen=[];
+    ["cleanser","moisturizer","exfoliator","toner","bonus"].forEach(slot=>{
+      if(slot==="exfoliator" && level<2) return;
+      if((slot==="toner" || slot==="bonus") && level<3) return;
+      const pick=winner(slot);
+      if(pick){
+        if(!chosen.some(p=>p.key===pick.key)) chosen.push(showProduct(pick.key,pick.reason));
+      }
+    });
+
+    // AHA/BHA is not in the current catalog; show it as unavailable, never invent a checkout URL.
+    const hasAha=chosen.some(p=>p.key==="aha");
+    if(hasAha){
+      const aha=chosen.find(p=>p.key==="aha");
+      aha.name="AHA & BHA Exfoliating Cleanser";
+      aha.sku="Not currently listed";
+      aha.price="Price unavailable";
+      aha.available=false;
+      notices.push("The AHA & BHA Exfoliating Cleanser is required by some answer paths but is missing from the connected VE Hub product list. Add its real product listing before taking orders for this recommendation.");
+    }
+
+    // KinComplete always includes its one Hyaluronic Acid Serum and Cotton Pads.
+    if(level===3 && !isChild){
+      if(!chosen.some(p=>p.key==="ha")) chosen.push(showProduct("ha","Included in every KinComplete box as the one serum."));
+      if(!chosen.some(p=>p.key==="cotton")) chosen.push(showProduct("cotton","Included in every KinComplete box."));
+    }
+    if(level<3 && selected("tonerMethod")==="pads"){
+      notices.push("You selected cotton pads. They are not included in KinBasics or KinPlus, but can be offered as an add-on.");
+    }
+
+    // Ingredient lists are not present in the repository, so do not falsely claim that ingredients were checked.
+    const ingredientReviewPending=avoid.length>0 || !!otherAvoid;
+    if(ingredientReviewPending){
+      notices.push("Ingredient check required before purchase: selected avoid-list items/allergies: "+[...avoid,otherAvoid].filter(Boolean).join(", ")+". The actual ingredient lists are not connected to this quiz, so it cannot safely confirm or swap conflicting products yet. These recommendations are marked for MatchKin review and should not be purchased until the ingredient lists are checked.");
+    }
+
+    const boxName=level===1?"KinBasics":level===2?"KinPlus":"KinComplete";
+    $("resultIntro").textContent="Your selected box is "+boxName+". Each product below is matched to your answers, with age and ingredient checks taking priority.";
+    $("safetyNotices").innerHTML=notices.map(n=>'<div class="mk-notice">'+safeText(n)+'</div>').join("");
+    $("productList").innerHTML=chosen.map(p=>{
+      const link=p.available && !ingredientReviewPending
+        ? '<a class="mk-buy" href="'+p.url+'" target="_blank" rel="noopener noreferrer">View VE Hub product</a>'
+        : '<p class="mk-meta">'+(ingredientReviewPending?"Purchase link held until ingredient review.":"Product listing needed before this item can be ordered.")+'</p>';
+      return '<article class="mk-product"><h3>'+safeText(p.name)+'</h3><div class="mk-meta">'+safeText(p.sku)+(p.price?" · "+safeText(p.price):"")+'</div><p>'+safeText(p.reason)+'</p>'+link+'</article>';
+    }).join("") || "<p>No product matches were available for this box selection. Please contact MatchKin.</p>";
+
+    const common="Shipping Box, Tissue Paper, Crinkle Filler, Sticker Seal, Shipping Label, QR Tutorial Card, Thank You Card";
+    let contents=level===1
+      ?"1 cleanser + 1 moisturizer"
+      :level===2
+        ?"KinBasics contents + 1 exfoliator"
+        :"KinPlus contents + 1 toner + 1 Hyaluronic Acid Serum + Cotton Pads + 1 bonus (Dry Oil or Spot Treatment)";
+    if(isChild) contents += " Child safety override: gentle-only cleanser/moisturizer; for KinComplete, Green Tea Calming Toner, Hyaluronic Acid Serum and Cotton Pads only. No exfoliator or bonus.";
+    if(level===2 && scrubAnswer==="sensitive") contents += " The exfoliator slot is held for a safe MatchKin-approved swap.";
+    if(level>=2 && !isChild && scrubAnswer==="clogged") contents += " The AHA & BHA exfoliating item needs to be added to the catalog before it can be ordered.";
+    $("boxContents").textContent=contents+". Every box also includes: "+common+".";
+
+    const tutorial=selected("tutorial");
+    let notes="QR Tutorial Card: "+(tutorial==="video"?"links to a video for the matched products.":tutorial==="read"?"links to a written step guide.":"gift selection; the optional personal message is for the Thank You Card.");
+    if(tutorial==="gift" && $("giftMessage").value.trim()) notes+=" Gift message: "+$("giftMessage").value.trim()+".";
+    if(level===3) notes+=" Cotton Pads are included whether toner is applied with pads or hands; if using hands, press toner gently into the skin.";
+    else if(selected("tonerMethod")==="pads") notes+=" Cotton Pads can be offered as an add-on for this box level.";
+    else notes+=" Toner is not included in this box level.";
+    $("routineNotes").textContent=notes;
     $("quiz").classList.add("mk-hidden");
     $("results").classList.remove("mk-hidden");
   }
