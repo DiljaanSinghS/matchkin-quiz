@@ -276,7 +276,10 @@
     // Cleanser mapping. The AHA & BHA cleanser in the supplied quiz is not in the supplied VE Hub catalog.
     if(isChild || selected("cleanserFeel")==="dry" || selected("cleanserFeel")==="reactive") addProduct(list,"oat");
     else if(selected("cleanserFeel")==="comfortable") addProduct(list,"peptide");
-    else missing.push("Your answer points to the AHA & BHA Exfoliating Cleanser, but that item was not present in the VE Hub product list supplied. No substitute has been guessed.");
+    else {
+      addProduct(list,"peptide","You selected shiny, clogged-feeling skin. The current catalog does not list the AHA & BHA cleanser named in the original quiz plan, so this gentle cleanser is shown as the closest listed daily-cleanser option—not as an exfoliating treatment.");
+      notices.push("The AHA & BHA cleanser planned for clogged-pore answers is not in the current product catalog. MatchKin should confirm whether to add it; this quiz has not substituted an exfoliating cleanser.");
+    }
 
     // Moisturizer mapping.
     const mf=selected("moistureFeel");
@@ -286,12 +289,12 @@
 
     // Level 2 exfoliation slot.
     if(level>=2 && !isChild){
-      if(selected("scrubFeel")==="fine" || selected("scrubFeel")==="sensitive"){
-        addProduct(list,"polish", selected("scrubFeel")==="sensitive"
-          ? "Your answer indicates sensitivity. The quiz says to use this only once weekly after a patch test; if unsure, skip this step and ask the MatchKin team."
-          : products.polish.why);
+      if(selected("scrubFeel")==="fine"){
+        addProduct(list,"polish",products.polish.why);
+      } else if(selected("scrubFeel")==="sensitive"){
+        notices.push("You selected sensitive skin. No exfoliating product has been added, because the listed facial polish may not be suitable for your answer.");
       } else {
-        missing.push("Your clogged-pore answer points to the AHA & BHA cleanser as the exfoliating step, but it is not listed in the supplied VE Hub catalog. No substitute exfoliant has been selected.");
+        notices.push("You selected clogged pores. The planned AHA & BHA product is not in the current catalog, so no exfoliating product has been guessed or added.");
       }
     }
     if(level>=3){
@@ -340,13 +343,15 @@
       else if(selected("goal")==="hydration") {
         // HA is already included in every KinComplete box; no second bonus serum is added.
         notices.push("Your deep-hydration goal matches the Hyaluronic Acid Serum, which is already included in KinComplete. Your answers did not identify a separate Dry Oil or Spot Treatment bonus.");
+      } else if((selected("goal")==="tone" || concerns.includes("dullness")) && !list.some(p=>p.key==="vitamin")){
+        addProduct(list,"vitamin","Your even-tone or dullness answer matches the Vitamin C Antioxidant Toner.");
       } else {
-        notices.push("Your answers did not identify a Dry Oil or Spot Treatment bonus. The MatchKin team should confirm the bonus selection before fulfillment.");
+        notices.push("Your hydration, redness, or other selected priorities are already reflected in the core product matches. No extra bonus product has been added just to fill a slot.");
       }
     }
 
     // Q6 rough texture adds the listed exfoliator only when a Level 2+ exfoliation slot exists and the selected scrub answer supports it.
-    if(level>=2 && concerns.includes("texture") && !isChild && selected("scrubFeel")==="fine") addProduct(list,"polish");
+    if(level>=2 && concerns.includes("texture") && !isChild && selected("scrubFeel")==="fine") addProduct(list,"polish","You selected rough texture and said your skin handles the smoother-skin exfoliation option.");
 
     // Ingredient list data was not included, so never claim this filter has verified compatibility.
     const avoid=checked("avoid");
@@ -364,10 +369,11 @@
     }).join("") || '<p>No catalog product could be matched to these answers. Please contact MatchKin before placing an order.</p>';
     if(missing.length) $("safetyNotices").insertAdjacentHTML("beforeend",missing.map(n=>'<div class="mk-notice">'+safeText(n)+'</div>').join(""));
 
-    let contents=level===1?"1 cleanser + 1 moisturizer":level===2?"KinBasics contents + 1 exfoliating step":"KinPlus contents + toner + Hyaluronic Acid Serum + Cotton Pads + 1 bonus (Dry Oil or Spot Treatment)";
+    let contents=level===1?"1 cleanser + 1 moisturizer":level===2?(selected("scrubFeel")==="fine"?"KinBasics contents + 1 exfoliating step":"KinBasics contents; no exfoliating product was added based on your sensitivity/clogged-pore answer"):"KinPlus contents + toner + Hyaluronic Acid Serum + Cotton Pads + a bonus product when your answers match one";
+    if(level>=3 && selected("scrubFeel")!=="fine") contents += " — no exfoliating product was added based on your answer.";
     if(isChild && level>=2) contents += " — the exfoliating step and non-gentle bonus are omitted under the child gentle-only rule; parent account required.";
     $("boxContents").textContent=contents+". Every box also includes: "+packaging.join(", ")+".";
-    $("routineNotes").textContent="Tutorial preference: "+(selected("tutorial")==="video"?"video":selected("tutorial")==="read"?"written steps":"gift message")+". "+(selected("tutorial")==="gift" && $("giftMessage").value.trim() ? "Gift message: "+$("giftMessage").value.trim()+". " : "")+(selected("tonerMethod")==="hands"?"Toner application preference: press toner in with hands.":"");
+    $("routineNotes").textContent="Tutorial preference: "+(selected("tutorial")==="video"?"video":selected("tutorial")==="read"?"written steps":"gift message")+". "+(selected("tutorial")==="gift" && $("giftMessage").value.trim() ? "Gift message: "+$("giftMessage").value.trim()+". " : "")+(selected("tonerMethod")==="hands"?"Toner application preference: press toner in with hands.":selected("tonerMethod")==="pads"?"Toner application preference: cotton pads.":"")+(level<3?" Toner is not included in this box level.":"");
     $("quiz").classList.add("mk-hidden");
     $("results").classList.remove("mk-hidden");
   }
