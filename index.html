@@ -379,10 +379,20 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
       slots.exfoliator=[];
       slots.toner=level===3?[{key:"green",reason:"The child rule allows Green Tea Calming Toner only."}]:[];
       slots.bonus=[];
-    } else if(isTeen && level>=2){
-      notices.push("Teen safety rule: use no more than one exfoliating product once a week. The AHA & BHA cleanser and Microderm Polish must never be combined in the same week's routine.");
-      // The quiz chooses one exfoliating slot only. If sensitivity is selected, omit rather than combine.
-      if(scrubAnswer==="sensitive") slots.exfoliator=[];
+    } else if(isTeen){
+      notices.push("Teen safety rule: exfoliating products are limited to once a week. Never use the AHA & BHA cleanser and Microderm Polish in the same week's routine.");
+      if(level>=2){
+        // If Q2 already selected AHA & BHA as the cleanser, do not add a second exfoliating product from Q4.
+        if(cleanserAnswer==="clogged" && scrubAnswer!=="clogged") slots.exfoliator=[];
+        // The Q4 clogged-pore path uses AHA & BHA as the weekly exfoliating step with Peptide + Hydro Gel Cleanser for daily cleansing.
+        if(scrubAnswer==="clogged"){
+          slots.exfoliator=slots.exfoliator.map(v=>v.key==="aha"?{...v,reason:"Teen safety rule: use this AHA & BHA exfoliating step no more than once a week, paired with Peptide + Hydro Gel Cleanser for daily cleansing."}:v);
+        }
+        if(scrubAnswer==="sensitive") slots.exfoliator=[];
+      }
+      if(cleanserAnswer==="clogged"){
+        slots.cleanser=slots.cleanser.map(v=>v.key==="aha"?{...v,reason:"Teen safety rule: use the AHA & BHA cleanser no more than once a week, not 2–3 times a week."}:v);
+      }
     }
 
     const chosen=[];
@@ -406,8 +416,8 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
       notices.push("The AHA & BHA Exfoliating Cleanser is required by some answer paths but is missing from the connected VE Hub product list. Add its real product listing before taking orders for this recommendation.");
     }
 
-    // KinComplete always includes its one Hyaluronic Acid Serum and Cotton Pads.
-    if(level===3 && !isChild){
+    // KinComplete always includes its one Hyaluronic Acid Serum and Cotton Pads, including for children because both are on the child-approved gentle list.
+    if(level===3){
       if(!chosen.some(p=>p.key==="ha")) chosen.push(showProduct("ha","Included in every KinComplete box as the one serum."));
       if(!chosen.some(p=>p.key==="cotton")) chosen.push(showProduct("cotton","Included in every KinComplete box."));
     }
