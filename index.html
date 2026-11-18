@@ -311,11 +311,11 @@
       if(scrubAnswer==="fine") vote("exfoliator","polish","You chose the smoother-skin option. The quiz plan limits this polish to once a week.","Q4");
       if(scrubAnswer==="clogged"){
         vote("cleanser","peptide","Your clogged-pore exfoliation choice pairs the AHA & BHA step with Peptide + Hydro Gel Cleanser for daily cleansing.","Q4");
+        vote("cleanser","peptide","Your Q4 answer specifically requires Peptide + Hydro Gel Cleanser for daily use with the AHA & BHA exfoliating step.","Q4 priority");
         vote("exfoliator","aha","Your clogged-pore answer selects the AHA & BHA cleanser as the exfoliating step. It is not currently listed in the connected product catalog.","Q4");
       }
       if(scrubAnswer==="sensitive"){
-        if(level===3) vote("exfoliator","ha","You selected sensitive skin. The Hyaluronic Acid Serum is used in place of an exfoliator in this slot; it is already included in KinComplete.","Q4");
-        else notices.push("You selected sensitive skin, so no exfoliating product has been added to KinPlus. MatchKin can review whether a suitable swap is available.");
+        vote("exfoliator","ha","You selected sensitive skin. The MatchKin plan allows the exfoliator slot to be swapped for Hyaluronic Acid Serum instead of adding a scrub.","Q4");
       }
     }
 
@@ -334,6 +334,7 @@
       if(concerns.includes("redness")) vote("toner","green","You selected redness or sensitivity.","Q6");
       if(concerns.includes("dehydration")) vote("toner","desert","You selected dryness or dehydration.","Q6");
       if(selected("goal")==="tone") vote("toner","vitamin","You selected even tone as your top goal.","Q7");
+      if(selected("goal")==="hydration") vote("moisturizer","marine","You selected deep hydration, which matches Marine Hydration Moisturizer.","Q7");
       vote("toner","green","Green Tea Calming Toner is the gentle fallback if no toner preference receives a vote.","fallback");
     }
 
