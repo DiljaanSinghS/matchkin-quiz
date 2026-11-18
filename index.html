@@ -180,7 +180,7 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
       </section>
 
       <section class="mk-card mk-hidden" data-step="10">
-        <h2>11. How many steps will you realistically do?</h2>
+        <h2>Bonus question: How many steps will you realistically do?</h2>
         <p class="mk-help">This selects your box level.</p>
         <div class="mk-options">
           <label class="mk-option"><input type="radio" name="level" value="1" required> 2 steps — KinBasics</label>
@@ -358,7 +358,7 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
       if(concerns.includes("dehydration")) vote("toner","desert","You selected dryness or dehydration.","Q6");
       if(selected("goal")==="tone") vote("toner","vitamin","You selected even tone as your top goal.","Q7");
       if(selected("goal")==="hydration") vote("moisturizer","marine","You selected deep hydration, which matches Marine Hydration Moisturizer.","Q7");
-      vote("toner","green","Green Tea Calming Toner is the gentle fallback if no toner preference receives a vote.","fallback");
+      if(!slots.toner.length) vote("toner","green","Green Tea Calming Toner is the default when no toner preference receives a vote.","fallback");
     }
 
     // Bonus item: count Q6 breakouts and Q7 goal votes; Q7 breaks ties.
@@ -458,6 +458,7 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
     const tutorial=selected("tutorial");
     let notes="QR Tutorial Card: "+(tutorial==="video"?"links to a video for the matched products.":tutorial==="read"?"links to a written step guide.":"gift selection; the optional personal message is for the Thank You Card.");
     if(tutorial==="gift" && $("giftMessage").value.trim()) notes+=" Gift message: "+$("giftMessage").value.trim()+".";
+    if(selected("goal")==="hydration" && level<3) notes+=" Deep hydration match: Marine Hydration Moisturizer is included in this box; the Hyaluronic Acid Serum is included only with KinComplete, as required by the box contents.";
     if(level===3) notes+=" Cotton Pads are included whether toner is applied with pads or hands; if using hands, press toner gently into the skin.";
     else if(selected("tonerMethod")==="pads") notes+=" Cotton Pads can be offered as an add-on for this box level.";
     else notes+=" Toner is not included in this box level.";
