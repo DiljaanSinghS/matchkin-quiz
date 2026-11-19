@@ -56,6 +56,10 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
 .mk-addon-wrap{margin:24px 0 8px;padding:22px;border:1px solid var(--line);border-radius:16px;background:#fbf9f7}
 .mk-addon-wrap h3{margin:0 0 7px;color:var(--ink);font-size:20px}
 .mk-addon-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:16px 0}
+.mk-addon-section{margin:18px 0 24px}
+.mk-addon-section h4{margin:0 0 6px;color:var(--ink);font-size:16px}
+.mk-addon-review{padding-top:18px;border-top:1px solid var(--line)}
+.mk-addon-reason{display:block;margin-top:7px;color:var(--muted);font-size:11px;line-height:1.5}
 .mk-addon{display:flex;gap:12px;align-items:center;padding:14px;border:1px solid var(--line);border-radius:14px;background:#fff;cursor:pointer;min-width:0;transition:border-color .15s,background .15s}
 .mk-addon-image{display:block;flex:0 0 104px;width:104px;height:104px;aspect-ratio:1/1;border-radius:11px;background-color:#f8f6f3;background-size:400% 400%;background-repeat:no-repeat}
 .mk-addon-image-placeholder{display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#f7f2ef,#edf1ef);color:var(--muted);font-size:10px;font-weight:700;text-align:center;padding:8px;line-height:1.4}
@@ -906,31 +910,61 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
     if(level===3){includedKeys.add("ha");includedKeys.add("cotton");}
     if(level>=2 && slots.exfoliator.length){const ex=winner("exfoliator");if(ex)includedKeys.add(ex.key);}
     if(level===3){const bonus=winner("bonus");if(bonus)includedKeys.add(bonus.key);}
-    // Show optional catalog products, excluding Cotton Pads (already part of the box collection)
-    // and the incomplete Vitamin C cleanser listing. Keep the valid MK-118 Vitamin C toner.
-    // Exclude products already included in the selected box and retain age restrictions.
+    // Match add-ons to the customer's actual quiz answers. Products already in the box
+    // are excluded, and age restrictions are applied before either section is displayed.
     const childAllowed=new Set(["oat","marine","green","ha"]);
-    const availableAddons=Object.keys(products).filter(key=>{
+    const addonMatches={};
+    const matchAddon=(key,reason)=>{ if(!addonMatches[key]) addonMatches[key]=reason; };
+    const climateAnswer=selected("climate");
+    const goalAnswer=selected("goal");
+    if(cleanserAnswer==="dry" || cleanserAnswer==="reactive") matchAddon("oat","Matches your dry or reactive-feeling cleanser answer.");
+    if(cleanserAnswer==="comfortable" || scrubAnswer==="clogged") matchAddon("peptide","Matches your comfortable-skin or clogged-pore routine answers.");
+    if(moistureAnswer==="dry" || goalAnswer==="hydration" || concerns.includes("dehydration")) matchAddon("marine","Matches your hydration or dryness answers.");
+    if(moistureAnswer==="oily" || moistureAnswer==="reactive") matchAddon("Matches your oily or reactive-feeling moisturizer answer.");
+    if(moistureAnswer==="combo") matchAddon("skin","Matches your combination-skin answer.");
+    if((level>=2 && scrubAnswer==="fine") || concerns.includes("texture")) matchAddon("polish","Matches your smoother-texture answers. Follow the age and frequency guidance shown with your box.");
+    if(climateAnswer==="humid" || concerns.includes("redness")) matchAddon("green","Matches your humid-climate or redness/sensitivity answers.");
+    if(climateAnswer==="dry" || concerns.includes("dehydration")) matchAddon("desert","Matches your dry-climate or dehydration answers.");
+    if(climateAnswer==="city" || concerns.includes("dullness") || goalAnswer==="tone") matchAddon("vitamin","Matches your city/pollution, dullness, or even-tone answers.");
+    if(concerns.includes("breakouts") || goalAnswer==="clear") matchAddon("spot","Matches your breakout or clearer-skin goal.");
+    if(goalAnswer==="glow") matchAddon("oil","Matches your glow or balanced-complexion goal.");
+    if(goalAnswer==="hydration") matchAddon("ha","Matches your deep-hydration goal.");
+    if(cleanserAnswer==="clogged" || scrubAnswer==="clogged") matchAddon("aha","Matches your clogged-pore answer; age and weekly-use guidance applies.");
+
+    const eligibleAddons=Object.keys(products).filter(key=>{
       const p=products[key];
-      if(!p || includedKeys.has(key) || key==="cotton" || key==="vitaminCleanser") return false;
+      if(!p || !p.url || includedKeys.has(key) || key==="cotton" || key==="vitaminCleanser") return false;
       if(isChild && !childAllowed.has(key)) return false;
       if(isTeen && (key==="polish" || key==="aha")) return false;
       return true;
     });
+    const recommendedAddons=eligibleAddons.filter(key=>!!addonMatches[key] && !ingredientReviewPending);
+    const reviewAddons=eligibleAddons.filter(key=>!recommendedAddons.includes(key));
     $("checkoutLinks").classList.add("mk-hidden");
     $("checkoutLinks").innerHTML="";
     $("boxStage").classList.remove("mk-hidden");
     $("addonsStage").classList.add("mk-hidden");
-    const addonImageClasses={oat:"oat",marine:"marine",polish:"polish",green:"green",ha:"ha",aha:"aha",biome:"biome",oil:"oil",peptide:"peptide",skin:"skin",desert:"desert",spot:"spot",vitaminCleanser:"vitamin-cleanser"};
-    $("addonsList").innerHTML=availableAddons.length ? availableAddons.map(key=>{
+    const addonImageClasses={oat:"oat",marine:"marine",polish:"polish",green:"green",ha:"ha",aha:"aha",biome:"biome",oil:"oil",peptide:"peptide",skin:"skin",desert:"desert",spot:"spot"};
+    const renderAddonCard=(key,notRecommended)=>{
       const p=products[key];
       const image=addonImageClasses[key]
         ? '<span class="mk-product-image mk-addon-image mk-img-'+addonImageClasses[key]+'" role="img" aria-label="Product photo: '+safeText(p.name)+'"></span>'
         : '<span class="mk-addon-image mk-addon-image-placeholder" role="img" aria-label="Product image coming soon">MatchKin<br>Product image</span>';
-      const unavailable=!p.url;
-      return '<label class="mk-addon'+(unavailable?' mk-addon-unavailable':'')+'"><input type="checkbox" name="mkAddon" value="'+safeText(key)+'"'+(unavailable?' disabled':'')+'>'+image+'<span class="mk-addon-copy"><strong>'+safeText(p.name)+'</strong><small>'+safeText(p.sku)+' · '+(unavailable?'VE HUB link not added yet':'Optional add-on')+'</small><span class="mk-addon-price">'+safeText(p.price || 'Price pending')+'</span></span></label>';
-    }).join("") : '<p class="mk-muted-note">No additional products are available for this box selection. You can continue straight to checkout.</p>';
-    $("addonsNote").textContent="Choose any extras, then click Next. You can also skip add-ons and go straight to your box checkout."+(ingredientReviewPending?" Ingredient reminder: review each product's ingredient list before purchasing because the quiz does not verify allergy compatibility.":"");
+      const needsIngredientReview=ingredientReviewPending;
+      const disabled=needsIngredientReview;
+      const reason=needsIngredientReview
+        ? 'Not recommended until ingredient compatibility is reviewed. MatchKin does not have verified ingredient lists for this product.'
+        : (notRecommended
+          ? 'Not a strong match for the answers in this quiz. This does not mean the product contains an ingredient you avoid.'
+          : addonMatches[key]);
+      return '<label class="mk-addon'+((disabled)?' mk-addon-unavailable':'')+'"><input type="checkbox" name="mkAddon" value="'+safeText(key)+'"'+(disabled?' disabled':'')+'>'+image+'<span class="mk-addon-copy"><strong>'+safeText(p.name)+'</strong><small>'+safeText(p.sku)+' · '+(disabled?'Ingredient review required':(notRecommended?'Not matched to your answers':'Recommended for your answers'))+'</small><span class="mk-addon-price">'+safeText(p.price || 'Price pending')+'</span><span class="mk-addon-reason">'+safeText(reason)+'</span></span></label>';
+    };
+    const recommendedHtml=recommendedAddons.map(key=>renderAddonCard(key,false)).join("");
+    const reviewHtml=reviewAddons.map(key=>renderAddonCard(key,true)).join("");
+    $("addonsList").innerHTML=
+      '<section class="mk-addon-section"><h4>Recommended for your answers</h4><p class="mk-muted-note">These optional products match your quiz answers and are not already included in your selected box.</p><div class="mk-addon-grid">'+(recommendedHtml||'<p class="mk-muted-note">No additional products matched your answers for this box. You can continue without add-ons.</p>')+'</div></section>'+
+      '<section class="mk-addon-section mk-addon-review"><h4>'+(ingredientReviewPending?'Not recommended until ingredient review':'Other products — not a strong match')+'</h4><p class="mk-muted-note">'+(ingredientReviewPending?'You selected an ingredient to avoid or reported an allergy. Ingredient lists have not been verified, so these products are disabled until compatibility can be checked. The quiz and box checkout can still continue.':'These products did not match your current quiz answers. They are shown for transparency, not because MatchKin has confirmed an ingredient conflict.')+'</p><div class="mk-addon-grid">'+(reviewHtml||'<p class="mk-muted-note">There are no other eligible products to show.</p>')+'</div></section>';
+    $("addonsNote").textContent="Select any recommended add-ons, then continue to your cart. You can skip add-ons and go straight to your box checkout."+(ingredientReviewPending?" Your selected box can still proceed; add-ons remain unavailable until their ingredient lists are verified.":"");
     $("skipAddonsBtn").disabled=false;
     $("continueAddonsBtn").disabled=false;
     $("boxNextBtn").onclick=()=>{
