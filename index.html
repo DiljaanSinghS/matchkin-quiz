@@ -733,10 +733,10 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
         (tier.level===3?'<div class="mk-plan-ribbon">MOST COMPLETE ROUTINE</div>':'')+
         '<h3>'+tier.name+'</h3><p class="mk-plan-tag">'+tier.tag+'</p>'+
         '<ul class="mk-plan-includes"><li>'+tier.contents+'</li></ul>'+
-        '<div class="mk-plan-choice"><p class="mk-plan-price">'+prices.monthly+'</p><span class="mk-trial">7 DAYS FREE</span><p class="mk-plan-period">Monthly billing after free trial</p>'+
-        '<button type="button" class="mk-btn mk-secondary" data-tier="'+tier.level+'" data-billing="monthly">Choose monthly</button></div>'+
-        '<div class="mk-plan-choice mk-plan-annual'+(tier.level===2?' mk-best-annual':'')+'">'+(tier.level===2?'<span class="mk-best-label">✦ BEST VALUE</span>':'')+'<p class="mk-plan-price">'+prices.annual+'</p><span class="mk-trial">14 DAYS FREE</span><p class="mk-plan-period">Billed annually after free trial</p>'+
-        '<button type="button" class="mk-btn mk-primary" data-tier="'+tier.level+'" data-billing="annual">Choose annual</button></div>'+
+        '<div class="mk-plan-choice"><p class="mk-plan-price">'+prices.monthly+'</p><span class="mk-trial">7-DAY TRIAL OFFER</span><p class="mk-plan-period">Trial and recurring monthly billing are not activated in VE Hub yet.</p>'+
+        '<button type="button" class="mk-btn mk-secondary" data-tier="'+tier.level+'" data-billing="monthly">Select monthly</button></div>'+
+        '<div class="mk-plan-choice mk-plan-annual'+(tier.level===2?' mk-best-annual':'')+'">'+(tier.level===2?'<span class="mk-best-label">✦ BEST VALUE</span>':'')+'<p class="mk-plan-price">'+prices.annual+'</p><span class="mk-trial">14-DAY TRIAL OFFER</span><p class="mk-plan-period">Annual checkout is not available in VE Hub yet.</p>'+
+        '<button type="button" class="mk-btn mk-primary" data-tier="'+tier.level+'" data-billing="annual">Preview annual plan</button></div>'+
       '</article>';
     }).join("");
     $("postSubscription").classList.add("mk-hidden");
@@ -749,7 +749,7 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
         $("subscriptionPanel").classList.add("mk-hidden");
         const selectedName=tier===1?"KinBasics":tier===2?"KinPlus":"KinComplete";
         const price=planPrices[selectedName][billing];
-        $("trialStatus").textContent="Selected: "+selectedName+" — "+(billing==="annual"?"annual billing at "+price:"monthly billing at "+price)+". The "+(billing==="annual"?"14-day":"7-day")+" trial and recurring payment are not connected to VE Hub yet, so this selection does not start a trial or charge you.";
+        $("trialStatus").textContent=billing==="annual" ? "Annual plan preview: "+selectedName+" at "+price+". The 14-day trial and annual checkout are not available in VE Hub yet. You can review matching products and add-ons, but checkout will not send you to a monthly purchase link." : "Monthly plan selected: "+selectedName+" at "+price+". The 7-day trial and recurring monthly billing are not activated. The current VE Hub link is a one-time box purchase, not a subscription.";
         $("trialStatus").classList.remove("mk-hidden");
         $("postSubscription").classList.remove("mk-hidden");
         $("postSubscription").scrollIntoView({behavior:"smooth",block:"start"});
@@ -843,10 +843,24 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
     };
     $("skipAddonsBtn").onclick=()=>{
       if(ingredientReviewPending) return;
-      window.open(boxUrls[level],"_blank","noopener");
+      if(chosenBilling==="annual"){
+        $("checkoutLinks").innerHTML='<p class="mk-muted-note"><strong>Annual checkout is not set up yet.</strong> VE Hub Store Manager does not currently provide an annual recurring option, and no separate annual checkout button has been created. Your annual plan selection is saved for this preview; no payment has been started.</p>';
+        $("checkoutLinks").classList.remove("mk-hidden");
+        $("checkoutLinks").scrollIntoView({behavior:"smooth",block:"nearest"});
+        return;
+      }
+      $("checkoutLinks").innerHTML='<p class="mk-muted-note"><strong>One-time VE Hub purchase:</strong> this link does not activate a free trial or recurring monthly subscription.</p><div class="mk-checkout-item"><strong>'+safeText(boxName)+' box</strong><a class="mk-buy" href="'+boxUrls[level]+'" target="_blank" rel="noopener noreferrer">Buy box on VE Hub</a></div>';
+      $("checkoutLinks").classList.remove("mk-hidden");
+      $("checkoutLinks").scrollIntoView({behavior:"smooth",block:"nearest"});
     };
     $("continueAddonsBtn").onclick=()=>{
       if(ingredientReviewPending) return;
+      if(chosenBilling==="annual"){
+        $("checkoutLinks").innerHTML='<p class="mk-muted-note"><strong>Annual checkout is not set up yet.</strong> VE Hub does not currently provide an annual recurring option, and no annual checkout button exists. Your selected add-ons are saved for this preview only; no payment has been started.</p>';
+        $("checkoutLinks").classList.remove("mk-hidden");
+        $("checkoutLinks").scrollIntoView({behavior:"smooth",block:"nearest"});
+        return;
+      }
       const selectedAddons=Array.from($("addonsList").querySelectorAll('input[name="mkAddon"]:checked')).map(el=>el.value);
       const rows=selectedAddons.map(key=>{
         const p=products[key];
