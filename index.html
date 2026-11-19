@@ -961,16 +961,13 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
         }));
         $("buyAllBtn").addEventListener("click",()=>{
           const checkoutItems=[boxItem,...cartItems].filter(item=>item.url);
-          const urls=checkoutItems.map(item=>item.url);
-          const fallback=checkoutItems.map(item=>'<p class="mk-checkout-link"><a href="'+safeText(item.url)+'" target="_blank" rel="noopener noreferrer">Open VE Hub: '+safeText(item.name)+'</a></p>').join("");
-          const opened=[];
-          urls.forEach(url=>{const tab=window.open(url,"_blank","noopener");opened.push(!!tab);});
-          const blocked=opened.some(value=>!value);
-          if(blocked){
-            const existing=$("checkoutLinks").querySelector(".mk-popup-fallback");
-            if(existing) existing.remove();
-            $("checkoutLinks").insertAdjacentHTML("beforeend",'<div class="mk-popup-fallback"><p class="mk-muted-note"><strong>Your browser blocked one or more checkout tabs.</strong> Use these links to open every selected item on VE Hub:</p>'+fallback+'</div>');
-          }
+          const links=checkoutItems.map(item=>'<a class="mk-buy" href="'+safeText(item.url)+'" target="_blank" rel="noopener noreferrer">Buy '+safeText(item.name)+' on VE Hub</a>').join("");
+          const existing=$("checkoutLinks").querySelector(".mk-popup-fallback");
+          if(existing) existing.remove();
+          $("checkoutLinks").insertAdjacentHTML("beforeend",'<div class="mk-popup-fallback"><p class="mk-muted-note"><strong>Your selected items are ready.</strong> Open each checkout below. All add-ons currently in your cart are included here.</p>'+links+'</div>');
+          $("checkoutLinks").querySelector(".mk-popup-fallback").scrollIntoView({behavior:"smooth",block:"nearest"});
+          $("buyAllBtn").textContent="Checkout links ready";
+          $("buyAllBtn").disabled=true;
         });
       }
       render();
