@@ -60,6 +60,8 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
 .mk-addon-image{display:block;flex:0 0 104px;width:104px;height:104px;aspect-ratio:1/1;border-radius:11px;background-color:#f8f6f3;background-size:400% 400%;background-repeat:no-repeat}
 .mk-addon-image-placeholder{display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#f7f2ef,#edf1ef);color:var(--muted);font-size:10px;font-weight:700;text-align:center;padding:8px;line-height:1.4}
 .mk-addon:has(input:checked){border-color:var(--rose);background:#fff8f6;box-shadow:0 0 0 1px var(--rose) inset}
+.mk-addon-unavailable{opacity:.62;cursor:not-allowed}
+.mk-addon-unavailable input{cursor:not-allowed}
 .mk-addon input{width:18px;height:18px;flex:0 0 18px;margin:2px 0 0;accent-color:var(--rose);cursor:pointer}
 .mk-addon-copy{display:block;min-width:0;flex:1}
 .mk-addon strong{display:block;font-size:14px;color:var(--ink);line-height:1.4}
@@ -820,7 +822,7 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
     const childAllowed=new Set(["oat","marine","green","ha"]);
     const availableAddons=Object.keys(products).filter(key=>{
       const p=products[key];
-      if(!p || !p.url || includedKeys.has(key)) return false;
+      if(!p || includedKeys.has(key)) return false;
       if(isChild && !childAllowed.has(key)) return false;
       if(isTeen && (key==="polish" || key==="aha")) return false;
       return true;
@@ -835,7 +837,8 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
       const image=addonImageClasses[key]
         ? '<span class="mk-product-image mk-addon-image mk-img-'+addonImageClasses[key]+'" role="img" aria-label="Product photo: '+safeText(p.name)+'"></span>'
         : '<span class="mk-addon-image mk-addon-image-placeholder" role="img" aria-label="Product image coming soon">MatchKin<br>Product image</span>';
-      return '<label class="mk-addon"><input type="checkbox" name="mkAddon" value="'+safeText(key)+'">'+image+'<span class="mk-addon-copy"><strong>'+safeText(p.name)+'</strong><small>'+safeText(p.sku)+' · Optional add-on</small><span class="mk-addon-price">'+safeText(p.price)+'</span></span></label>';
+      const unavailable=!p.url;
+      return '<label class="mk-addon'+(unavailable?' mk-addon-unavailable':'')+'"><input type="checkbox" name="mkAddon" value="'+safeText(key)+'"'+(unavailable?' disabled':'')+'>'+image+'<span class="mk-addon-copy"><strong>'+safeText(p.name)+'</strong><small>'+safeText(p.sku)+' · '+(unavailable?'VE HUB link not added yet':'Optional add-on')+'</small><span class="mk-addon-price">'+safeText(p.price || 'Price pending')+'</span></span></label>';
     }).join("") : '<p class="mk-muted-note">No additional products are available for this box selection. You can continue straight to checkout.</p>';
     $("addonsNote").textContent="Choose any extras, then click Next. You can also skip add-ons and go straight to your box checkout."+(ingredientReviewPending?" Ingredient reminder: review each product's ingredient list before purchasing because the quiz does not verify allergy compatibility.":"");
     $("skipAddonsBtn").disabled=false;
