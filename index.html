@@ -617,7 +617,6 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
     peptide: {name:"Peptide + Hydro Gel Cleanser", sku:"MK-116", price:"$10.30", url:"https://portal.veinternational.org/buybuttons/us0111277/btn/peptide-hydro-gel-cleanser-mk116/", why:"You selected comfortable or mixed-feeling skin."},
     skin: {name:"Skin Balancing Moisturizer", sku:"MK-119", price:"$11.75", url:"https://portal.veinternational.org/buybuttons/us0111277/btn/skin-balancing-moisturizer-mk119/", why:"You selected an oily T-zone with drier areas elsewhere."},
     aha: {name:"AHA & BHA Exfoliating Cleanser", sku:"MK-115", price:"", url:"https://portal.veinternational.org/buybuttons/us0111277/btn/aha-and-bha-exfoliating-cleaner-mk115/", why:"You selected the AHA & BHA exfoliating step."},
-    vitaminCleanser: {name:"Vitamin C Antioxidant Facial Cleanser", sku:"Product link not provided", price:"", url:"", why:"Vitamin C antioxidant facial cleanser shown in the supplied product photo; confirm its quiz matching rule before recommending it."},
     vitamin: {name:"Vitamin C Antioxidant Toner", sku:"MK-118", price:"$9.97", url:"https://portal.veinternational.org/buybuttons/us0111277/btn/vitamin-c-antioxidant-toner-mk118/", why:"You selected city/pollution, dullness/dark spots, or even tone."}
   };
   const packaging = [
@@ -902,12 +901,13 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
     if(level===3){includedKeys.add("ha");includedKeys.add("cotton");}
     if(level>=2 && slots.exfoliator.length){const ex=winner("exfoliator");if(ex)includedKeys.add(ex.key);}
     if(level===3){const bonus=winner("bonus");if(bonus)includedKeys.add(bonus.key);}
-    // Show every catalog product with a working VE HUB purchase link.
+    // Show optional catalog products, excluding Cotton Pads (already part of the box collection)
+    // and the incomplete Vitamin C cleanser listing. Keep the valid MK-118 Vitamin C toner.
     // Exclude products already included in the selected box and retain age restrictions.
     const childAllowed=new Set(["oat","marine","green","ha"]);
     const availableAddons=Object.keys(products).filter(key=>{
       const p=products[key];
-      if(!p || includedKeys.has(key)) return false;
+      if(!p || includedKeys.has(key) || key==="cotton" || key==="vitaminCleanser") return false;
       if(isChild && !childAllowed.has(key)) return false;
       if(isTeen && (key==="polish" || key==="aha")) return false;
       return true;
