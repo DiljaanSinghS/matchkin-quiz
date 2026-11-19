@@ -845,26 +845,31 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
     $("checkoutLinks").innerHTML="";
     $("addonsList").innerHTML=availableAddons.length ? availableAddons.map(key=>{
       const p=products[key];
-      return '<label class="mk-addon"><input type="checkbox" name="mkAddon" value="'+safeText(key)+'" '+(ingredientReviewPending?'disabled':'')+'><span class="mk-addon-copy"><strong>'+safeText(p.name)+'</strong><small>'+safeText(p.sku)+' · Optional add-on</small><span class="mk-addon-price">'+safeText(p.price)+'</span></span></label>';
+      return '<label class="mk-addon"><input type="checkbox" name="mkAddon" value="'+safeText(key)+'"><span class="mk-addon-copy"><strong>'+safeText(p.name)+'</strong><small>'+safeText(p.sku)+' · Optional add-on</small><span class="mk-addon-price">'+safeText(p.price)+'</span></span></label>';
     }).join("") : '<p class="mk-muted-note">No additional products matched your quiz answers for this box. You can continue straight to checkout.</p>';
     $("addonsNote").textContent=ingredientReviewPending
       ?"Add-on selection is paused because your avoid-list answers need an ingredient review first. Please contact MatchKin before ordering."
       :"Choose any extras, then click Next. You can also skip add-ons and go straight to your box checkout.";
-    $("skipAddonsBtn").disabled=ingredientReviewPending;
-    $("continueAddonsBtn").disabled=ingredientReviewPending;
+    $("skipAddonsBtn").disabled=false;
+    $("continueAddonsBtn").disabled=false;
     const boxUrls={
       1:"https://portal.veinternational.org/buybuttons/us0111277/btn/kinbasics-mk123/",
       2:"https://portal.veinternational.org/buybuttons/us0111277/btn/kinplus-mk124/",
       3:"https://portal.veinternational.org/buybuttons/us0111277/btn/kincomplete-mk125/"
     };
+    const showIngredientHold=()=>{
+      $("checkoutLinks").innerHTML='<div class="mk-notice"><strong>Ingredient review needed before checkout.</strong><br>You selected an ingredient to avoid or reported an allergy. MatchKin has not connected verified ingredient lists to this quiz yet, so we cannot confirm that the box or add-ons are suitable. Please have the product ingredients reviewed before placing an order.</div>';
+      $("checkoutLinks").classList.remove("mk-hidden");
+      $("checkoutLinks").scrollIntoView({behavior:"smooth",block:"nearest"});
+    };
     $("skipAddonsBtn").onclick=()=>{
-      if(ingredientReviewPending) return;
+      if(ingredientReviewPending){showIngredientHold();return;}
       $("checkoutLinks").innerHTML='<p class="mk-muted-note"><strong>One-time VE Hub purchase:</strong> this link does not activate a free trial or recurring monthly subscription.</p><div class="mk-checkout-item"><strong>'+safeText(boxName)+' box</strong><a class="mk-buy" href="'+boxUrls[level]+'" target="_blank" rel="noopener noreferrer">Buy box on VE Hub</a></div>';
       $("checkoutLinks").classList.remove("mk-hidden");
       $("checkoutLinks").scrollIntoView({behavior:"smooth",block:"nearest"});
     };
     $("continueAddonsBtn").onclick=()=>{
-      if(ingredientReviewPending) return;
+      if(ingredientReviewPending){showIngredientHold();return;}
       const selectedAddons=Array.from($("addonsList").querySelectorAll('input[name="mkAddon"]:checked')).map(el=>el.value);
       const rows=selectedAddons.map(key=>{
         const p=products[key];
