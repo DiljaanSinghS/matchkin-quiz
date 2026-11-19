@@ -56,7 +56,9 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
 .mk-addon-wrap{margin:24px 0 8px;padding:22px;border:1px solid var(--line);border-radius:16px;background:#fbf9f7}
 .mk-addon-wrap h3{margin:0 0 7px;color:var(--ink);font-size:20px}
 .mk-addon-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:16px 0}
-.mk-addon{display:flex;gap:12px;align-items:flex-start;padding:16px;border:1px solid var(--line);border-radius:14px;background:#fff;cursor:pointer;min-width:0;transition:border-color .15s,background .15s}
+.mk-addon{display:flex;gap:12px;align-items:center;padding:14px;border:1px solid var(--line);border-radius:14px;background:#fff;cursor:pointer;min-width:0;transition:border-color .15s,background .15s}
+.mk-addon-image{display:block;flex:0 0 104px;width:104px;height:104px;aspect-ratio:1/1;border-radius:11px;background-color:#f8f6f3;background-size:400% 400%;background-repeat:no-repeat}
+.mk-addon-image-placeholder{display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#f7f2ef,#edf1ef);color:var(--muted);font-size:10px;font-weight:700;text-align:center;padding:8px;line-height:1.4}
 .mk-addon:has(input:checked){border-color:var(--rose);background:#fff8f6;box-shadow:0 0 0 1px var(--rose) inset}
 .mk-addon input{width:18px;height:18px;flex:0 0 18px;margin:2px 0 0;accent-color:var(--rose);cursor:pointer}
 .mk-addon-copy{display:block;min-width:0;flex:1}
@@ -69,7 +71,7 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
 .mk-checkout-item:last-child{border-bottom:0}
 .mk-checkout-item a{white-space:nowrap}
 .mk-muted-note{font-size:12px;line-height:1.55;color:var(--muted);margin:10px 0 0}
-@media(max-width:560px){.mk-addon-grid{grid-template-columns:1fr}.mk-addon-wrap{padding:17px}.mk-checkout-item{align-items:flex-start;flex-direction:column}}
+@media(max-width:560px){.mk-addon-grid{grid-template-columns:1fr}.mk-addon-wrap{padding:17px}.mk-addon{gap:10px;padding:11px}.mk-addon-image{flex-basis:82px;width:82px;height:82px}.mk-checkout-item{align-items:flex-start;flex-direction:column}}
 
 .mk-footer{color:#899294;font-size:11px;text-align:center;margin:24px 0 4px;line-height:1.6}
 @media(max-width:560px){body{padding:10px}.mk-header{padding:25px 16px;border-radius:17px}.mk-header h1{font-size:32px}.mk-card{padding:19px 16px}.mk-product{grid-template-columns:104px minmax(0,1fr);gap:12px;padding:11px}.mk-product h3{font-size:15px}.mk-product-image{border-radius:9px}.mk-btn{padding:12px 19px}}
@@ -480,23 +482,29 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
       <div id="trialStatus" class="mk-trial-status mk-hidden" role="status"></div>
     </section>
     <div id="postSubscription" class="mk-hidden">
-    <h2>Your MatchKin Product Recommendations</h2>
-    <div id="safetyNotices"></div>
-    <div id="productList"></div>
-    <h3>What's included in your box?</h3>
-    <div id="boxContents" class="mk-boxlist"></div>
-    <p id="routineNotes" class="mk-help"></p>
+    <div id="boxStage">
+      <h2>Your MatchKin Product Recommendations</h2>
+      <div id="safetyNotices"></div>
+      <div id="productList"></div>
+      <h3>What's included in your box?</h3>
+      <div id="boxContents" class="mk-boxlist"></div>
+      <p id="routineNotes" class="mk-help"></p>
+      <div class="mk-actions"><button type="button" class="mk-btn mk-primary" id="boxNextBtn">Next: Choose Add-ons</button></div>
+    </div>
+    <div id="addonsStage" class="mk-hidden">
     <section id="addonsPanel" class="mk-addon-wrap" aria-labelledby="addonsTitle">
       <h3 id="addonsTitle">Make your routine your own</h3>
       <p class="mk-help">Want anything extra? Choose optional add-ons below, or skip this step. Items already included in your selected box are not repeated.</p>
       <div id="addonsList" class="mk-addon-grid"></div>
       <div class="mk-addon-actions">
+        <button type="button" class="mk-btn mk-secondary" id="backToBoxBtn">Back</button>
         <button type="button" class="mk-btn mk-secondary" id="skipAddonsBtn">Skip add-ons &amp; buy my box</button>
-        <button type="button" class="mk-btn mk-primary" id="continueAddonsBtn">Next</button>
+        <button type="button" class="mk-btn mk-primary" id="continueAddonsBtn">Continue to checkout</button>
       </div>
       <p class="mk-muted-note" id="addonsNote">VE Hub checkout opens separately for each item. The box and add-ons are not combined into one cart.</p>
       <div id="checkoutLinks" class="mk-checkout-list mk-hidden"></div>
     </section>
+    </div>
     </div>
     <div class="mk-actions">
       <button type="button" class="mk-btn mk-secondary" id="restartBtn">Retake quiz</button>
@@ -807,34 +815,10 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
     if(level===3){includedKeys.add("ha");includedKeys.add("cotton");}
     if(level>=2 && slots.exfoliator.length){const ex=winner("exfoliator");if(ex)includedKeys.add(ex.key);}
     if(level===3){const bonus=winner("bonus");if(bonus)includedKeys.add(bonus.key);}
-    // Build add-ons only from products that match this customer's quiz answers.
-    // Never show the product already recommended/included in their selected box.
-    const matchedAddonKeys = new Set();
-    if(cleanserAnswer==="dry" || cleanserAnswer==="reactive") matchedAddonKeys.add("oat");
-    if(cleanserAnswer==="comfortable") matchedAddonKeys.add("peptide");
-    if(cleanserAnswer==="clogged"){
-      matchedAddonKeys.add("aha");
-      if(scrubAnswer==="clogged") matchedAddonKeys.add("peptide");
-    }
-    const quizMoisturizerMap={dry:"marine",oily:"biome",combo:"skin",reactive:"biome"};
-    if(quizMoisturizerMap[moistureAnswer]) matchedAddonKeys.add(quizMoisturizerMap[moistureAnswer]);
-    if(scrubAnswer==="fine") matchedAddonKeys.add("polish");
-    if(scrubAnswer==="clogged") matchedAddonKeys.add("aha");
-    if(scrubAnswer==="sensitive") matchedAddonKeys.add("ha");
-    const quizClimate=selected("climate");
-    if(quizClimate==="dry") matchedAddonKeys.add("desert");
-    if(quizClimate==="city") matchedAddonKeys.add("vitamin");
-    if(quizClimate==="humid") matchedAddonKeys.add("green");
-    if(concerns.includes("dullness")) matchedAddonKeys.add("vitamin");
-    if(concerns.includes("redness")) matchedAddonKeys.add("green");
-    if(concerns.includes("dehydration")) matchedAddonKeys.add("desert");
-    if(concerns.includes("breakouts") || selected("goal")==="clear") matchedAddonKeys.add("spot");
-    if(selected("goal")==="glow") matchedAddonKeys.add("oil");
-    if(selected("goal")==="hydration") matchedAddonKeys.add("marine");
-    if(selected("goal")==="tone") matchedAddonKeys.add("vitamin");
-    const addonKeys=Array.from(matchedAddonKeys);
+    // Show every catalog product with a working VE HUB purchase link.
+    // Exclude products already included in the selected box and retain age restrictions.
     const childAllowed=new Set(["oat","marine","green","ha"]);
-    const availableAddons=addonKeys.filter(key=>{
+    const availableAddons=Object.keys(products).filter(key=>{
       const p=products[key];
       if(!p || !p.url || includedKeys.has(key)) return false;
       if(isChild && !childAllowed.has(key)) return false;
@@ -843,13 +827,29 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
     });
     $("checkoutLinks").classList.add("mk-hidden");
     $("checkoutLinks").innerHTML="";
+    $("boxStage").classList.remove("mk-hidden");
+    $("addonsStage").classList.add("mk-hidden");
+    const addonImageClasses={oat:"oat",marine:"marine",polish:"polish",green:"green",ha:"ha",aha:"aha",biome:"biome",oil:"oil",peptide:"peptide",skin:"skin",desert:"desert",spot:"spot"};
     $("addonsList").innerHTML=availableAddons.length ? availableAddons.map(key=>{
       const p=products[key];
-      return '<label class="mk-addon"><input type="checkbox" name="mkAddon" value="'+safeText(key)+'"><span class="mk-addon-copy"><strong>'+safeText(p.name)+'</strong><small>'+safeText(p.sku)+' · Optional add-on</small><span class="mk-addon-price">'+safeText(p.price)+'</span></span></label>';
-    }).join("") : '<p class="mk-muted-note">No additional products matched your quiz answers for this box. You can continue straight to checkout.</p>';
+      const image=addonImageClasses[key]
+        ? '<span class="mk-product-image mk-addon-image mk-img-'+addonImageClasses[key]+'" role="img" aria-label="Product photo: '+safeText(p.name)+'"></span>'
+        : '<span class="mk-addon-image mk-addon-image-placeholder" role="img" aria-label="Product image coming soon">MatchKin<br>Product image</span>';
+      return '<label class="mk-addon"><input type="checkbox" name="mkAddon" value="'+safeText(key)+'">'+image+'<span class="mk-addon-copy"><strong>'+safeText(p.name)+'</strong><small>'+safeText(p.sku)+' · Optional add-on</small><span class="mk-addon-price">'+safeText(p.price)+'</span></span></label>';
+    }).join("") : '<p class="mk-muted-note">No additional products are available for this box selection. You can continue straight to checkout.</p>';
     $("addonsNote").textContent="Choose any extras, then click Next. You can also skip add-ons and go straight to your box checkout."+(ingredientReviewPending?" Ingredient reminder: review each product's ingredient list before purchasing because the quiz does not verify allergy compatibility.":"");
     $("skipAddonsBtn").disabled=false;
     $("continueAddonsBtn").disabled=false;
+    $("boxNextBtn").onclick=()=>{
+      $("boxStage").classList.add("mk-hidden");
+      $("addonsStage").classList.remove("mk-hidden");
+      $("addonsStage").scrollIntoView({behavior:"smooth",block:"start"});
+    };
+    $("backToBoxBtn").onclick=()=>{
+      $("addonsStage").classList.add("mk-hidden");
+      $("boxStage").classList.remove("mk-hidden");
+      $("boxStage").scrollIntoView({behavior:"smooth",block:"start"});
+    };
     const boxUrls={
       1:"https://portal.veinternational.org/buybuttons/us0111277/btn/kinbasics-mk123/",
       2:"https://portal.veinternational.org/buybuttons/us0111277/btn/kinplus-mk124/",
