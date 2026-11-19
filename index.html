@@ -237,7 +237,7 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
     polish: {name:"Microderm Facial Polish Exfoliator", sku:"MK-103", price:"$12.40", url:"https://portal.veinternational.org/buybuttons/us0111277/btn/microderm-facial-polish-mk103/", why:"You selected the smoother-skin option. Your quiz specifies using this exfoliating step once a week."},
     green: {name:"Green Tea Calming Toner", sku:"MK-104", price:"$9.97", url:"https://portal.veinternational.org/buybuttons/us0111277/btn/green-tea-calming-mk104/", why:"Your answers point to the calming-toner option."},
     ha: {name:"Multi-Molecule Hyaluronic Acid Serum", sku:"MK-105", price:"$11.25", url:"https://portal.veinternational.org/buybuttons/us0111277/btn/multi-molecule-hyaluronic-acid-mk105/", why:"This is the Hyaluronic Acid Serum included in every KinComplete box."},
-    cotton: {name:"Cotton Pad", sku:"MK-106", price:"$0.02", url:"https://portal.veinternational.org/storemanager/d5cc45952ec741bea6d7fdf75d87c3d3/buybuttons/232390e7-2e40-46b1-ba1d-8d56adc73726/?page=1&fltr=*", why:"Cotton pads are included in KinComplete; they can be an add-on for KinBasics or KinPlus."},
+    cotton: {name:"Cotton Pad", sku:"MK-106", price:"$0.02", url:"", why:"Cotton pads are included in KinComplete; they can be an add-on for KinBasics or KinPlus."},
     desert: {name:"Barrier Defense Desert Toner", sku:"MK-117", price:"$9.97", url:"https://portal.veinternational.org/buybuttons/us0111277/btn/barrier-defense-desert-toner-mk117/", why:"You selected dry or cold air, dryness, or dehydration."},
     spot: {name:"Bio Clear Spot Treatment Serum", sku:"MK-122", price:"$11.25", url:"https://portal.veinternational.org/buybuttons/us0111277/btn/bio-clear-spot-treatment-serum-mk122/", why:"You selected breakouts or clearer skin as a priority."},
     biome: {name:"Biome Balance Lightweight Moisturizer", sku:"MK-120", price:"$11.75", url:"https://portal.veinternational.org/buybuttons/us0111277/btn/biome-balance-lightweight-moisturizer-mk120/", why:"You selected oily or shiny skin, or red/reactive-feeling skin."},
@@ -424,15 +424,14 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
       }
     });
 
-    // AHA/BHA is not in the current catalog; show it as unavailable, never invent a checkout URL.
+    // AHA/BHA now has the public VE Hub Buy Button supplied by MatchKin.
     const hasAha=chosen.some(p=>p.key==="aha");
     if(hasAha){
       const aha=chosen.find(p=>p.key==="aha");
       aha.name="AHA & BHA Exfoliating Cleanser";
-      aha.sku="Not currently listed";
-      aha.price="Price unavailable";
-      aha.available=false;
-      notices.push("The AHA & BHA Exfoliating Cleanser is required by some answer paths but is missing from the connected VE Hub product list. Add its real product listing before taking orders for this recommendation.");
+      aha.sku="MK-115";
+      aha.price="";
+      aha.available=!!products.aha.url;
     }
 
     // KinComplete always includes its one Hyaluronic Acid Serum and Cotton Pads, including for children because both are on the child-approved gentle list.
