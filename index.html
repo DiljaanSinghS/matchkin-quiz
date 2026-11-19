@@ -621,8 +621,8 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
     oil: {name:"Complexion Balancing Dry Oil Serum", sku:"MK-121", price:"$11.25", url:"https://portal.veinternational.org/buybuttons/us0111277/btn/complexion-balancing-dry-oil-serum-mk121/", why:"You selected glow or a balanced complexion as your top goal."},
     peptide: {name:"Peptide + Hydro Gel Cleanser", sku:"MK-116", price:"$10.30", url:"https://portal.veinternational.org/buybuttons/us0111277/btn/peptide-hydro-gel-cleanser-mk116/", why:"You selected comfortable or mixed-feeling skin."},
     skin: {name:"Skin Balancing Moisturizer", sku:"MK-119", price:"$11.75", url:"https://portal.veinternational.org/buybuttons/us0111277/btn/skin-balancing-moisturizer-mk119/", why:"You selected an oily T-zone with drier areas elsewhere."},
-    aha: {name:"AHA & BHA Exfoliating Cleanser", sku:"MK-115", price:"", url:"https://portal.veinternational.org/buybuttons/us0111277/btn/aha-and-bha-exfoliating-cleaner-mk115/", why:"You selected the AHA & BHA exfoliating step."},
-    vitamin: {name:"Vitamin C Antioxidant Toner", sku:"MK-118", price:"$9.97", url:"https://portal.veinternational.org/buybuttons/us0111277/btn/vitamin-c-antioxidant-toner-mk118/", why:"You selected city/pollution, dullness/dark spots, or even tone."}
+    aha: {name:"AHA & BHA Exfoliating Cleanser", sku:"MK-CL-01", price:"$10.30", url:"https://portal.veinternational.org/buybuttons/us0111277/btn/aha-and-bha-exfoliating-cleaner-mk115/", why:"You selected the AHA & BHA exfoliating step."},
+    vitamin: {name:"Vitamin C Antioxidant Toner", sku:"MK-TN-03", price:"$9.97", url:"https://portal.veinternational.org/buybuttons/us0111277/btn/vitamin-c-antioxidant-toner-mk118/", why:"You selected city/pollution, dullness/dark spots, or even tone."}
   };
   const packaging = [
     "Shipping Box (MK-108)", "Tissue Paper (MK-109)", "Crinkle Filler (MK-110)",
@@ -735,7 +735,7 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
       if(scrubAnswer==="clogged"){
         vote("cleanser","peptide","Your clogged-pore exfoliation choice pairs the AHA & BHA step with Peptide + Hydro Gel Cleanser for daily cleansing.","Q4");
         vote("cleanser","peptide","Your Q4 answer specifically requires Peptide + Hydro Gel Cleanser for daily use with the AHA & BHA exfoliating step.","Q4 priority");
-        vote("exfoliator","aha","Your clogged-pore answer selects the AHA & BHA cleanser as the exfoliating step. It is not currently listed in the connected product catalog.","Q4");
+        vote("exfoliator","aha","Your clogged-pore answer selects the AHA & BHA Exfoliating Cleanser as the exfoliating step.","Q4");
       }
       if(scrubAnswer==="sensitive"){
         vote("exfoliator","ha","You selected sensitive skin. The MatchKin plan allows the exfoliator slot to be swapped for Hyaluronic Acid Serum instead of adding a scrub.","Q4");
@@ -810,8 +810,8 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
     if(hasAha){
       const aha=chosen.find(p=>p.key==="aha");
       aha.name="AHA & BHA Exfoliating Cleanser";
-      aha.sku="MK-115";
-      aha.price="";
+      aha.sku="MK-CL-01";
+      aha.price="$10.30";
       aha.available=!!products.aha.url;
     }
 
@@ -874,7 +874,7 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
       const link=p.available
         ? '<p class="mk-meta mk-included-label">Matched for your selected box</p>'
         : '<p class="mk-meta">'+"Product listing needed before this item can be ordered."+'</p>';
-      const imageKeys=["oat","marine","polish","green","ha","aha","biome","oil","peptide","skin","desert","spot","vitaminCleanser"];
+      const imageKeys=["oat","marine","polish","green","ha","aha","biome","oil","peptide","skin","desert","spot"];
       const hasImage=imageKeys.includes(p.key);
       const image=hasImage?'<div class="mk-product-image mk-img-'+p.key+'" role="img" aria-label="Product photo: '+safeText(p.name)+'"></div>':"";
       return '<article class="mk-product'+(hasImage?"":" mk-product-no-image")+'">'+image+'<div class="mk-product-copy"><h3>'+safeText(p.name)+'</h3><div class="mk-meta">'+safeText(p.sku)+(p.price?" · "+safeText(p.price):"")+'</div><p>'+safeText(p.reason)+'</p>'+link+'</div></article>';
@@ -888,7 +888,7 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
         :"KinPlus contents + 1 toner + 1 Hyaluronic Acid Serum + Cotton Pads + 1 bonus (Dry Oil or Spot Treatment)";
     if(isChild) contents += " Child safety override: gentle-only cleanser/moisturizer; for KinComplete, Green Tea Calming Toner, Hyaluronic Acid Serum and Cotton Pads only. No exfoliator or bonus.";
     if(level===2 && scrubAnswer==="sensitive") contents += " The exfoliator slot is held for a safe MatchKin-approved swap.";
-    if(level>=2 && !isChild && scrubAnswer==="clogged") contents += " The AHA & BHA exfoliating item needs to be added to the catalog before it can be ordered.";
+    
     $("boxContents").textContent=contents+". Every box also includes: "+common+".";
 
     const tutorial=selected("tutorial");
@@ -912,7 +912,7 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
     const childAllowed=new Set(["oat","marine","green","ha"]);
     const availableAddons=Object.keys(products).filter(key=>{
       const p=products[key];
-      if(!p || includedKeys.has(key) || key==="cotton" || key==="vitaminCleanser") return false;
+      if(!p || includedKeys.has(key) || key==="cotton") return false;
       if(isChild && !childAllowed.has(key)) return false;
       if(isTeen && (key==="polish" || key==="aha")) return false;
       return true;
@@ -921,7 +921,7 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
     $("checkoutLinks").innerHTML="";
     $("boxStage").classList.remove("mk-hidden");
     $("addonsStage").classList.add("mk-hidden");
-    const addonImageClasses={oat:"oat",marine:"marine",polish:"polish",green:"green",ha:"ha",aha:"aha",biome:"biome",oil:"oil",peptide:"peptide",skin:"skin",desert:"desert",spot:"spot",vitaminCleanser:"vitamin-cleanser"};
+    const addonImageClasses={oat:"oat",marine:"marine",polish:"polish",green:"green",ha:"ha",aha:"aha",biome:"biome",oil:"oil",peptide:"peptide",skin:"skin",desert:"desert",spot:"spot"};
     $("addonsList").innerHTML=availableAddons.length ? availableAddons.map(key=>{
       const p=products[key];
       const image=addonImageClasses[key]
