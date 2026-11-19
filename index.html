@@ -861,7 +861,6 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
       $("checkoutLinks").scrollIntoView({behavior:"smooth",block:"nearest"});
     };
     $("continueAddonsBtn").onclick=()=>{
-      if(ingredientReviewPending){showIngredientHold();return;}
       const selectedAddons=Array.from($("addonsList").querySelectorAll('input[name="mkAddon"]:checked')).map(el=>el.value);
       const rows=selectedAddons.map(key=>{
         const p=products[key];
