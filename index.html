@@ -104,6 +104,24 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
 #subscriptionOptions .mk-plan-tag,#subscriptionOptions .mk-plan-includes,#subscriptionOptions .mk-plan-period{font-size:clamp(9px,1vw,12px)}
 #subscriptionOptions .mk-plan-choice .mk-btn{font-size:clamp(9px,1vw,12px);padding:10px 5px;white-space:normal}
 @media(max-width:420px){#subscriptionOptions.mk-plan-grid{gap:6px}#subscriptionOptions .mk-plan{padding:17px 7px 10px}#subscriptionOptions .mk-plan.featured{padding-top:39px}}
+
+/* Keep all three MatchKin box cards in one row, including inside Wix embeds. */
+.mk-plans .mk-plan-grid,
+#subscriptionOptions.mk-plan-grid{
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:12px!important;
+  align-items:stretch;
+}
+.mk-plans .mk-plan{min-width:0;padding:20px 12px 14px}
+.mk-plans .mk-plan h3{font-size:18px}
+.mk-plans .mk-plan-includes{font-size:11px}
+@media(max-width:680px){
+  .mk-plans .mk-plan-grid,
+  #subscriptionOptions.mk-plan-grid{
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  }
+}
 </style>
 </head>
 <body>
