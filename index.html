@@ -395,6 +395,11 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
   #subscriptionOptions .mk-plan.featured{transform:scale(1.02)!important}
 }
 
+
+
+/* Ensure the generated KinPlus card visibly shows its BEST VALUE ribbon. */
+#subscriptionOptions .mk-plan.featured{position:relative!important;padding-top:48px!important;border:2px solid #bf897d!important;}
+#subscriptionOptions .mk-plan.featured .mk-plan-ribbon{display:block!important;position:absolute!important;top:-1px!important;left:-1px!important;right:-1px!important;z-index:10!important;padding:8px 10px!important;border-radius:15px 15px 0 0!important;background:#bf897d!important;color:#fff!important;text-align:center!important;font-size:10px!important;line-height:1.2!important;font-weight:800!important;letter-spacing:1.4px!important;}
 </style>
 </head>
 <body>
@@ -972,27 +977,3 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
 </script>
 </body>
 </html>
-
-
-/* Final override: show the BEST VALUE ribbon on the middle KinPlus card. */
-#subscriptionOptions .mk-plan.featured{
-  padding-top:48px!important;
-  border:2px solid #bf897d!important;
-}
-#subscriptionOptions .mk-plan.featured .mk-plan-ribbon{
-  display:block!important;
-  position:absolute!important;
-  top:-1px!important;
-  left:-1px!important;
-  right:-1px!important;
-  z-index:5!important;
-  padding:8px 10px!important;
-  border-radius:15px 15px 0 0!important;
-  background:#bf897d!important;
-  color:#fff!important;
-  text-align:center!important;
-  font-size:10px!important;
-  line-height:1.2!important;
-  font-weight:800!important;
-  letter-spacing:1.4px!important;
-}
