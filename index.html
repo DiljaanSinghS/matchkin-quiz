@@ -315,6 +315,63 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
 #subscriptionOptions .mk-plan-choice{border:0;padding:0;margin:10px 0 0}
 #subscriptionOptions .mk-plan-choice .mk-btn{margin-top:8px}
 #continueAddonsBtn{min-width:130px}
+
+/* Align matching content across all three subscription cards. */
+#subscriptionOptions .mk-plan{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:stretch!important;
+}
+#subscriptionOptions .mk-plan h3{
+  min-height:26px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin-bottom:8px;
+}
+#subscriptionOptions .mk-plan-tag{
+  min-height:42px!important;
+  display:flex;
+  align-items:flex-start;
+  justify-content:center;
+}
+#subscriptionOptions .mk-plan-includes{
+  min-height:68px;
+  align-content:start;
+  margin-bottom:12px!important;
+}
+#subscriptionOptions .mk-plan-choice{
+  margin-top:auto!important;
+  width:100%;
+  box-sizing:border-box;
+}
+#subscriptionOptions .mk-plan-choice > .mk-plan-price{
+  min-height:36px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+#subscriptionOptions .mk-plan-choice > .mk-trial{
+  min-height:28px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+}
+#subscriptionOptions .mk-plan-choice > .mk-plan-period{
+  min-height:34px;
+  display:flex;
+  align-items:flex-start;
+  justify-content:center;
+}
+#subscriptionOptions .mk-plan-choice > .mk-yearly-note{
+  min-height:48px;
+  display:block;
+}
+@media(max-width:680px){
+  #subscriptionOptions .mk-plan-tag{min-height:48px!important}
+  #subscriptionOptions .mk-plan-includes{min-height:78px}
+}
+
 </style>
 </head>
 <body>
