@@ -275,6 +275,31 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
   #subscriptionOptions .mk-plan-choice .mk-btn{font-size:10px;padding:10px 5px}
 }
 
+
+/* Quiz-first flow: hide the standalone plan chooser above the quiz. */
+.mk-wrap > .mk-plans{display:none!important}
+/* Show the three plans as a focused modal immediately after quiz completion. */
+#subscriptionPanel{
+  position:fixed!important;
+  z-index:99999!important;
+  top:50%!important;
+  left:50%!important;
+  transform:translate(-50%,-50%)!important;
+  width:min(1040px,calc(100vw - 28px))!important;
+  max-height:calc(100vh - 28px)!important;
+  overflow:auto!important;
+  box-sizing:border-box!important;
+  padding:24px!important;
+  border:1px solid #e8e1dc!important;
+  border-radius:20px!important;
+  background:#fff!important;
+  box-shadow:0 0 0 100vmax rgba(30,42,45,.58),0 22px 70px rgba(30,42,45,.24)!important;
+}
+#subscriptionPanel .mk-subscription-head{text-align:center}
+#subscriptionPanel .mk-subscription-head p{color:var(--muted);font-size:14px}
+@media(max-width:680px){
+  #subscriptionPanel{padding:16px 10px!important;width:calc(100vw - 16px)!important;max-height:calc(100vh - 16px)!important}
+}
 </style>
 </head>
 <body>
@@ -721,6 +746,7 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
         const tier=Number(button.dataset.tier);
         const billing=button.dataset.billing;
         buildResults(tier,billing);
+        $("subscriptionPanel").classList.add("mk-hidden");
         const selectedName=tier===1?"KinBasics":tier===2?"KinPlus":"KinComplete";
         const price=planPrices[selectedName][billing];
         $("trialStatus").textContent="Selected: "+selectedName+" — "+(billing==="annual"?"annual billing at "+price:"monthly billing at "+price)+". The "+(billing==="annual"?"14-day":"7-day")+" trial and recurring payment are not connected to VE Hub yet, so this selection does not start a trial or charge you.";
@@ -767,7 +793,32 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
     if(level===3){includedKeys.add("ha");includedKeys.add("cotton");}
     if(level>=2 && slots.exfoliator.length){const ex=winner("exfoliator");if(ex)includedKeys.add(ex.key);}
     if(level===3){const bonus=winner("bonus");if(bonus)includedKeys.add(bonus.key);}
-    const addonKeys=["oat","marine","polish","green","ha","desert","spot","biome","oil","peptide","skin","aha","vitamin"];
+    // Build add-ons only from products that match this customer's quiz answers.
+    // Never show the product already recommended/included in their selected box.
+    const matchedAddonKeys = new Set();
+    if(cleanserAnswer==="dry" || cleanserAnswer==="reactive") matchedAddonKeys.add("oat");
+    if(cleanserAnswer==="comfortable") matchedAddonKeys.add("peptide");
+    if(cleanserAnswer==="clogged"){
+      matchedAddonKeys.add("aha");
+      if(scrubAnswer==="clogged") matchedAddonKeys.add("peptide");
+    }
+    const quizMoisturizerMap={dry:"marine",oily:"biome",combo:"skin",reactive:"biome"};
+    if(quizMoisturizerMap[moistureAnswer]) matchedAddonKeys.add(quizMoisturizerMap[moistureAnswer]);
+    if(scrubAnswer==="fine") matchedAddonKeys.add("polish");
+    if(scrubAnswer==="clogged") matchedAddonKeys.add("aha");
+    if(scrubAnswer==="sensitive") matchedAddonKeys.add("ha");
+    const quizClimate=selected("climate");
+    if(quizClimate==="dry") matchedAddonKeys.add("desert");
+    if(quizClimate==="city") matchedAddonKeys.add("vitamin");
+    if(quizClimate==="humid") matchedAddonKeys.add("green");
+    if(concerns.includes("dullness")) matchedAddonKeys.add("vitamin");
+    if(concerns.includes("redness")) matchedAddonKeys.add("green");
+    if(concerns.includes("dehydration")) matchedAddonKeys.add("desert");
+    if(concerns.includes("breakouts") || selected("goal")==="clear") matchedAddonKeys.add("spot");
+    if(selected("goal")==="glow") matchedAddonKeys.add("oil");
+    if(selected("goal")==="hydration") matchedAddonKeys.add("marine");
+    if(selected("goal")==="tone") matchedAddonKeys.add("vitamin");
+    const addonKeys=Array.from(matchedAddonKeys);
     const childAllowed=new Set(["oat","marine","green","ha"]);
     const availableAddons=addonKeys.filter(key=>{
       const p=products[key];
@@ -813,6 +864,7 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
     $("giftFields").classList.add("mk-hidden");
     $("giftMessage").classList.add("mk-hidden");
     $("results").classList.add("mk-hidden");
+    $("subscriptionPanel").classList.remove("mk-hidden");
     $("quiz").classList.remove("mk-hidden");
     showStep(0);
   });
