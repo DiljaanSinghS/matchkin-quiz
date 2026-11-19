@@ -267,8 +267,8 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
         <h2 id="subscriptionTitle">Start your MatchKin subscription</h2>
         <p>Choose how you'd like to pay for your personalized skincare box.</p>
       </div>
-      <div id="subscriptionOptions" class="mk-plan-grid"></div>
-      <p class="mk-subscription-note">Both plans include a 14-day free trial. You won't be charged during the trial.</p>
+      <div id="subscriptionOptions" class="mk-plan-grid" style="display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:12px;width:100%;align-items:stretch"></div>
+      <p class="mk-subscription-note">Monthly plans include 7 days free. Annual plans include 14 days free. Choose the billing option that works for you.</p>
       <div id="trialStatus" class="mk-trial-status mk-hidden" role="status"></div>
     </section>
     <div id="postSubscription" class="mk-hidden">
@@ -536,10 +536,10 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
       return '<article class="mk-plan'+(tier.level===3?' featured':'')+(selected?' mk-plan-selected':'')+'">'+
         (tier.level===3?'<div class="mk-plan-ribbon">MOST COMPLETE ROUTINE</div>':'')+
         '<h3>'+tier.name+'</h3><p class="mk-plan-tag">'+tier.tag+'</p>'+
-        '<ul class="mk-plan-includes"><li>'+tier.contents+'</li><li>14-day free trial</li></ul>'+
-        '<div class="mk-plan-choice"><p class="mk-plan-price">'+prices.monthly+'</p><p class="mk-plan-period">Monthly billing</p>'+
+        '<ul class="mk-plan-includes"><li>'+tier.contents+'</li></ul>'+
+        '<div class="mk-plan-choice"><p class="mk-plan-price">'+prices.monthly+'</p><span class="mk-trial">7 DAYS FREE</span><p class="mk-plan-period">Monthly billing after free trial</p>'+
         '<button type="button" class="mk-btn mk-secondary" data-tier="'+tier.level+'" data-billing="monthly">Choose monthly</button></div>'+
-        '<div class="mk-plan-choice mk-plan-annual"><span class="mk-best-label">BEST VALUE</span><p class="mk-plan-price">'+prices.annual+'</p><p class="mk-plan-period">Billed annually after your 14-day free trial</p>'+
+        '<div class="mk-plan-choice mk-plan-annual"><span class="mk-best-label">BEST VALUE</span><p class="mk-plan-price">'+prices.annual+'</p><span class="mk-trial">14 DAYS FREE</span><p class="mk-plan-period">Billed annually after free trial</p>'+
         '<button type="button" class="mk-btn mk-primary" data-tier="'+tier.level+'" data-billing="annual">Choose annual</button></div>'+
       '</article>';
     }).join("");
@@ -552,7 +552,7 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
         buildResults(tier,billing);
         const selectedName=tier===1?"KinBasics":tier===2?"KinPlus":"KinComplete";
         const price=planPrices[selectedName][billing];
-        $("trialStatus").textContent="Selected: "+selectedName+" — "+(billing==="annual"?"annual billing at "+price:"monthly billing at "+price)+". The 14-day trial and recurring payment are not connected to VE Hub yet, so this selection does not start a trial or charge you.";
+        $("trialStatus").textContent="Selected: "+selectedName+" — "+(billing==="annual"?"annual billing at "+price:"monthly billing at "+price)+". The "+(billing==="annual"?"14-day":"7-day")+" trial and recurring payment are not connected to VE Hub yet, so this selection does not start a trial or charge you.";
         $("trialStatus").classList.remove("mk-hidden");
         $("postSubscription").classList.remove("mk-hidden");
         $("postSubscription").scrollIntoView({behavior:"smooth",block:"start"});
