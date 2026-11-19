@@ -52,6 +52,22 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
 .mk-buy{display:inline-block;margin-top:8px;text-decoration:none;color:white;background:var(--ink);border-radius:999px;padding:10px 16px;font-size:12px;font-weight:700;letter-spacing:.2px}
 .mk-buy:hover{background:#3e5055}
 .mk-boxlist{color:var(--muted);font-size:14px;line-height:1.7}
+
+.mk-addon-wrap{margin:24px 0 8px;padding:22px;border:1px solid var(--line);border-radius:16px;background:#fbf9f7}
+.mk-addon-wrap h3{margin:0 0 7px;color:var(--ink);font-size:20px}
+.mk-addon-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:16px 0}
+.mk-addon{display:flex;gap:10px;align-items:flex-start;padding:13px;border:1px solid var(--line);border-radius:12px;background:#fff;cursor:pointer}
+.mk-addon input{margin-top:4px;accent-color:var(--rose)}
+.mk-addon strong{display:block;font-size:13px;color:var(--ink);line-height:1.4}
+.mk-addon small{display:block;margin-top:4px;color:var(--muted);font-size:11px}
+.mk-addon-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+.mk-checkout-list{margin-top:16px;padding-top:16px;border-top:1px solid var(--line)}
+.mk-checkout-item{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);font-size:13px}
+.mk-checkout-item:last-child{border-bottom:0}
+.mk-checkout-item a{white-space:nowrap}
+.mk-muted-note{font-size:12px;line-height:1.55;color:var(--muted);margin:10px 0 0}
+@media(max-width:560px){.mk-addon-grid{grid-template-columns:1fr}.mk-addon-wrap{padding:17px}.mk-checkout-item{align-items:flex-start;flex-direction:column}}
+
 .mk-footer{color:#899294;font-size:11px;text-align:center;margin:24px 0 4px;line-height:1.6}
 @media(max-width:560px){body{padding:10px}.mk-header{padding:25px 16px;border-radius:17px}.mk-header h1{font-size:32px}.mk-card{padding:19px 16px}.mk-product{grid-template-columns:104px minmax(0,1fr);gap:12px;padding:11px}.mk-product h3{font-size:15px}.mk-product-image{border-radius:9px}.mk-btn{padding:12px 19px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;scroll-behavior:auto!important}}
@@ -221,6 +237,17 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
     <h3>What's included in your box?</h3>
     <div id="boxContents" class="mk-boxlist"></div>
     <p id="routineNotes" class="mk-help"></p>
+    <section id="addonsPanel" class="mk-addon-wrap" aria-labelledby="addonsTitle">
+      <h3 id="addonsTitle">Make your routine your own</h3>
+      <p class="mk-help">Want anything extra? Choose optional add-ons below, or skip this step. Items already included in your selected box are not repeated.</p>
+      <div id="addonsList" class="mk-addon-grid"></div>
+      <div class="mk-addon-actions">
+        <button type="button" class="mk-btn mk-secondary" id="skipAddonsBtn">Skip add-ons &amp; buy my box</button>
+        <button type="button" class="mk-btn mk-primary" id="continueAddonsBtn">Continue with selected add-ons</button>
+      </div>
+      <p class="mk-muted-note" id="addonsNote">VE Hub checkout opens separately for each item. The box and add-ons are not combined into one cart.</p>
+      <div id="checkoutLinks" class="mk-checkout-list mk-hidden"></div>
+    </section>
     <div class="mk-actions">
       <button type="button" class="mk-btn mk-secondary" id="restartBtn">Retake quiz</button>
     </div>
@@ -481,6 +508,55 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
     else if(selected("tonerMethod")==="pads") notes+=" Cotton Pads can be offered as an add-on for this box level.";
     else notes+=" Toner is not included in this box level.";
     $("routineNotes").textContent=notes;
+
+    // Optional add-ons: only products with a working VE Hub Buy Button are offered.
+    // Items already included/recommended in the selected box are excluded.
+    const includedKeys = new Set(chosen.map(p=>p.key));
+    if(level===3){includedKeys.add("ha");includedKeys.add("cotton");}
+    if(level>=2 && slots.exfoliator.length){const ex=winner("exfoliator");if(ex)includedKeys.add(ex.key);}
+    if(level===3){const bonus=winner("bonus");if(bonus)includedKeys.add(bonus.key);}
+    const addonKeys=["oat","marine","polish","green","ha","desert","spot","biome","oil","peptide","skin","aha","vitamin"];
+    const childAllowed=new Set(["oat","marine","green","ha"]);
+    const availableAddons=addonKeys.filter(key=>{
+      const p=products[key];
+      if(!p || !p.url || includedKeys.has(key)) return false;
+      if(isChild && !childAllowed.has(key)) return false;
+      if(isTeen && (key==="polish" || key==="aha")) return false;
+      return true;
+    });
+    $("addonsList").innerHTML=availableAddons.length ? availableAddons.map(key=>{
+      const p=products[key];
+      return '<label class="mk-addon"><input type="checkbox" name="mkAddon" value="'+safeText(key)+'" '+(ingredientReviewPending?'disabled':'')+'><span><strong>'+safeText(p.name)+'</strong><small>'+safeText(p.sku)+' · '+safeText(p.price)+'</small></span></label>';
+    }).join("") : '<p class="mk-muted-note">There are no additional products available for this box selection.</p>';
+    if(ingredientReviewPending){
+      $("addonsNote").textContent="Add-on checkout is disabled because your avoid-list answers need an ingredient review first. Please contact MatchKin before ordering.";
+      $("skipAddonsBtn").disabled=true;
+      $("continueAddonsBtn").disabled=true;
+    } else {
+      $("addonsNote").textContent="VE Hub checkout opens separately for each item. The box and add-ons are not combined into one cart.";
+      $("skipAddonsBtn").disabled=false;
+      $("continueAddonsBtn").disabled=false;
+    }
+    const boxUrls={
+      1:"https://portal.veinternational.org/buybuttons/us0111277/btn/kinbasics-mk123/",
+      2:"https://portal.veinternational.org/buybuttons/us0111277/btn/kinplus-mk124/",
+      3:"https://portal.veinternational.org/buybuttons/us0111277/btn/kincomplete-mk125/"
+    };
+    $("skipAddonsBtn").onclick=()=>{
+      if(ingredientReviewPending) return;
+      window.open(boxUrls[level],"_blank","noopener");
+    };
+    $("continueAddonsBtn").onclick=()=>{
+      if(ingredientReviewPending) return;
+      const selectedAddons=Array.from($("addonsList").querySelectorAll('input[name="mkAddon"]:checked')).map(el=>el.value);
+      const rows=selectedAddons.map(key=>{
+        const p=products[key];
+        return '<div class="mk-checkout-item"><span>'+safeText(p.name)+' · '+safeText(p.price)+'</span><a class="mk-buy" href="'+p.url+'" target="_blank" rel="noopener noreferrer">Buy on VE Hub</a></div>';
+      }).join("");
+      $("checkoutLinks").innerHTML='<h4>Continue to VE Hub</h4><p class="mk-muted-note">First, order your selected box. Then use the individual links for any add-ons you selected.</p><div class="mk-checkout-item"><strong>'+safeText(boxName)+' box</strong><a class="mk-buy" href="'+boxUrls[level]+'" target="_blank" rel="noopener noreferrer">Buy box on VE Hub</a></div>'+(rows || '<p class="mk-muted-note">You did not select any add-ons. You can just order your box above.</p>');
+      $("checkoutLinks").classList.remove("mk-hidden");
+      $("checkoutLinks").scrollIntoView({behavior:"smooth",block:"nearest"});
+    };
     $("quiz").classList.add("mk-hidden");
     $("results").classList.remove("mk-hidden");
   }
