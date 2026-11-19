@@ -73,6 +73,11 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
 .mk-checkout-item:last-child{border-bottom:0}
 .mk-checkout-item a{white-space:nowrap}
 .mk-muted-note{font-size:12px;line-height:1.55;color:var(--muted);margin:10px 0 0}
+.mk-cart-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 0;border-bottom:1px solid var(--line)}
+.mk-cart-copy{display:flex;flex-direction:column;gap:4px;font-size:13px}.mk-cart-copy span{font-size:12px;color:var(--muted)}
+.mk-remove-item{border:1px solid #d8c5bf;background:#fff;color:#925f56;border-radius:999px;padding:7px 12px;font-size:12px;font-weight:700;cursor:pointer}
+.mk-cart-included{font-size:11px;color:#647276;font-weight:700}.mk-buy-all{width:100%;margin-top:16px}
+.mk-included-label{font-weight:700;color:#647276}
 @media(max-width:560px){.mk-addon-grid{grid-template-columns:1fr}.mk-addon-wrap{padding:17px}.mk-addon{gap:10px;padding:11px}.mk-addon-image{flex-basis:82px;width:82px;height:82px}.mk-checkout-item{align-items:flex-start;flex-direction:column}}
 
 .mk-footer{color:#899294;font-size:11px;text-align:center;margin:24px 0 4px;line-height:1.6}
@@ -867,7 +872,7 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
     $("safetyNotices").innerHTML=notices.map(n=>'<div class="mk-notice">'+safeText(n)+'</div>').join("");
     $("productList").innerHTML=chosen.map(p=>{
       const link=p.available
-        ? '<a class="mk-buy" href="'+p.url+'" target="_blank" rel="noopener noreferrer">Buy Now</a>'
+        ? '<p class="mk-meta mk-included-label">Matched for your selected box</p>'
         : '<p class="mk-meta">'+"Product listing needed before this item can be ordered."+'</p>';
       const imageKeys=["oat","marine","polish","green","ha","aha","biome","oil","peptide","skin","desert","spot","vitaminCleanser"];
       const hasImage=imageKeys.includes(p.key);
@@ -943,20 +948,29 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
       2:"https://portal.veinternational.org/buybuttons/us0111277/btn/kinplus-mk124/",
       3:"https://portal.veinternational.org/buybuttons/us0111277/btn/kincomplete-mk125/"
     };
-    $("skipAddonsBtn").onclick=()=>{
-      $("checkoutLinks").innerHTML='<p class="mk-muted-note"><strong>One-time VE Hub purchase:</strong> this link does not activate a free trial or recurring monthly subscription.</p><div class="mk-checkout-item"><strong>'+safeText(boxName)+' box</strong><a class="mk-buy" href="'+boxUrls[level]+'" target="_blank" rel="noopener noreferrer">Buy box on VE Hub</a></div>';
-      $("checkoutLinks").classList.remove("mk-hidden");
+    function showCart(selectedAddons){
+      let cartItems=selectedAddons.map(key=>({key,name:products[key].name,price:products[key].price,url:products[key].url}));
+      const boxItem={key:"__box",name:boxName+" box",price:"Included in selected plan",url:boxUrls[level],locked:true};
+      function render(){
+        const rows=[boxItem,...cartItems].map((item,index)=>'<div class="mk-cart-row"><div class="mk-cart-copy"><strong>'+safeText(item.name)+'</strong><span>'+safeText(item.price)+'</span></div>'+(item.locked?'<span class="mk-cart-included">Selected plan</span>':'<button type="button" class="mk-remove-item" data-remove="'+safeText(item.key)+'" aria-label="Remove '+safeText(item.name)+'">Remove</button>')+'</div>').join("");
+        $("checkoutLinks").innerHTML='<h4>Your MatchKin cart</h4><p class="mk-muted-note">Review your items. You can remove any add-on before checkout.</p>'+rows+'<p class="mk-muted-note"><strong>Checkout note:</strong> VE Hub currently opens a separate order page for the box and each add-on; this button opens those pages for you, not one combined payment.</p><button type="button" class="mk-btn mk-primary mk-buy-all" id="buyAllBtn">Buy All</button>';
+        $("checkoutLinks").classList.remove("mk-hidden");
+        $("checkoutLinks").querySelectorAll("[data-remove]").forEach(button=>button.addEventListener("click",()=>{
+          cartItems=cartItems.filter(item=>item.key!==button.dataset.remove);
+          render();
+        }));
+        $("buyAllBtn").addEventListener("click",()=>{
+          const urls=[boxItem.url,...cartItems.map(item=>item.url)].filter(Boolean);
+          urls.forEach(url=>window.open(url,"_blank","noopener"));
+        });
+      }
+      render();
       $("checkoutLinks").scrollIntoView({behavior:"smooth",block:"nearest"});
-    };
+    }
+    $("skipAddonsBtn").onclick=()=>showCart([]);
     $("continueAddonsBtn").onclick=()=>{
       const selectedAddons=Array.from($("addonsList").querySelectorAll('input[name="mkAddon"]:checked')).map(el=>el.value);
-      const rows=selectedAddons.map(key=>{
-        const p=products[key];
-        return '<div class="mk-checkout-item"><span>'+safeText(p.name)+' · '+safeText(p.price)+'</span><a class="mk-buy" href="'+p.url+'" target="_blank" rel="noopener noreferrer">Buy on VE Hub</a></div>';
-      }).join("");
-      $("checkoutLinks").innerHTML='<h4>Your MatchKin checkout links</h4><p class="mk-muted-note">VE Hub opens a separate order page for each item. Place the box order first, then place any selected add-on orders.</p><div class="mk-checkout-item"><strong>'+safeText(boxName)+' box</strong><a class="mk-buy" href="'+boxUrls[level]+'" target="_blank" rel="noopener noreferrer">Buy box on VE Hub</a></div>'+(rows || '<p class="mk-muted-note">No add-ons selected. Your box link is ready above.</p>');
-      $("checkoutLinks").classList.remove("mk-hidden");
-      $("checkoutLinks").scrollIntoView({behavior:"smooth",block:"nearest"});
+      showCart(selectedAddons);
     };
     $("quiz").classList.add("mk-hidden");
     $("results").classList.remove("mk-hidden");
