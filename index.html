@@ -56,10 +56,13 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
 .mk-addon-wrap{margin:24px 0 8px;padding:22px;border:1px solid var(--line);border-radius:16px;background:#fbf9f7}
 .mk-addon-wrap h3{margin:0 0 7px;color:var(--ink);font-size:20px}
 .mk-addon-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:16px 0}
-.mk-addon{display:flex;gap:10px;align-items:flex-start;padding:13px;border:1px solid var(--line);border-radius:12px;background:#fff;cursor:pointer}
-.mk-addon input{margin-top:4px;accent-color:var(--rose)}
-.mk-addon strong{display:block;font-size:13px;color:var(--ink);line-height:1.4}
-.mk-addon small{display:block;margin-top:4px;color:var(--muted);font-size:11px}
+.mk-addon{display:flex;gap:12px;align-items:flex-start;padding:16px;border:1px solid var(--line);border-radius:14px;background:#fff;cursor:pointer;min-width:0;transition:border-color .15s,background .15s}
+.mk-addon:has(input:checked){border-color:var(--rose);background:#fff8f6;box-shadow:0 0 0 1px var(--rose) inset}
+.mk-addon input{width:18px;height:18px;flex:0 0 18px;margin:2px 0 0;accent-color:var(--rose);cursor:pointer}
+.mk-addon-copy{display:block;min-width:0;flex:1}
+.mk-addon strong{display:block;font-size:14px;color:var(--ink);line-height:1.4}
+.mk-addon small{display:block;margin-top:5px;color:var(--muted);font-size:12px;line-height:1.45}
+.mk-addon-price{display:block;margin-top:7px;color:var(--ink);font-size:13px;font-weight:700}
 .mk-addon-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
 .mk-checkout-list{margin-top:16px;padding-top:16px;border-top:1px solid var(--line)}
 .mk-checkout-item{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);font-size:13px}
@@ -838,10 +841,12 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
       if(isTeen && (key==="polish" || key==="aha")) return false;
       return true;
     });
+    $("checkoutLinks").classList.add("mk-hidden");
+    $("checkoutLinks").innerHTML="";
     $("addonsList").innerHTML=availableAddons.length ? availableAddons.map(key=>{
       const p=products[key];
-      return '<label class="mk-addon"><input type="checkbox" name="mkAddon" value="'+safeText(key)+'" '+(ingredientReviewPending?'disabled':'')+'><span><strong>'+safeText(p.name)+'</strong><small>'+safeText(p.sku)+' · '+safeText(p.price)+'</small></span></label>';
-    }).join("") : '<p class="mk-muted-note">There are no additional products available for this box selection.</p>';
+      return '<label class="mk-addon"><input type="checkbox" name="mkAddon" value="'+safeText(key)+'" '+(ingredientReviewPending?'disabled':'')+'><span class="mk-addon-copy"><strong>'+safeText(p.name)+'</strong><small>'+safeText(p.sku)+' · Optional add-on</small><span class="mk-addon-price">'+safeText(p.price)+'</span></span></label>';
+    }).join("") : '<p class="mk-muted-note">No additional products matched your quiz answers for this box. You can continue straight to checkout.</p>';
     $("addonsNote").textContent=ingredientReviewPending
       ?"Add-on selection is paused because your avoid-list answers need an ingredient review first. Please contact MatchKin before ordering."
       :"Choose any extras, then click Next. You can also skip add-ons and go straight to your box checkout.";
@@ -865,7 +870,7 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
         const p=products[key];
         return '<div class="mk-checkout-item"><span>'+safeText(p.name)+' · '+safeText(p.price)+'</span><a class="mk-buy" href="'+p.url+'" target="_blank" rel="noopener noreferrer">Buy on VE Hub</a></div>';
       }).join("");
-      $("checkoutLinks").innerHTML='<h4>Continue to VE Hub</h4><p class="mk-muted-note">First, order your selected box. Then use the individual links for any add-ons you selected.</p><div class="mk-checkout-item"><strong>'+safeText(boxName)+' box</strong><a class="mk-buy" href="'+boxUrls[level]+'" target="_blank" rel="noopener noreferrer">Buy box on VE Hub</a></div>'+(rows || '<p class="mk-muted-note">You did not select any add-ons. You can just order your box above.</p>');
+      $("checkoutLinks").innerHTML='<h4>Your MatchKin checkout links</h4><p class="mk-muted-note">VE Hub opens a separate order page for each item. Place the box order first, then place any selected add-on orders.</p><div class="mk-checkout-item"><strong>'+safeText(boxName)+' box</strong><a class="mk-buy" href="'+boxUrls[level]+'" target="_blank" rel="noopener noreferrer">Buy box on VE Hub</a></div>'+(rows || '<p class="mk-muted-note">No add-ons selected. Your box link is ready above.</p>');
       $("checkoutLinks").classList.remove("mk-hidden");
       $("checkoutLinks").scrollIntoView({behavior:"smooth",block:"nearest"});
     };
