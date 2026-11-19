@@ -204,6 +204,76 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
   #subscriptionOptions .mk-plan-price{font-size:clamp(13px,3vw,22px)}
   #subscriptionOptions .mk-plan-choice .mk-btn{font-size:10px;padding:10px 5px}
 }
+
+/* Final subscription polish: equal cards, with a clear and well-spaced Best Value treatment. */
+#subscriptionOptions.mk-plan-grid{
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  align-items:stretch!important;
+}
+#subscriptionOptions .mk-plan,
+#subscriptionOptions .mk-plan.featured{
+  box-sizing:border-box!important;
+  height:100%!important;
+  min-width:0!important;
+  padding:22px 14px 16px!important;
+  transform:none!important;
+}
+#subscriptionOptions .mk-plan.featured{
+  border:1px solid var(--line)!important;
+  background:#fff!important;
+}
+#subscriptionOptions .mk-plan-choice.mk-plan-annual{
+  box-sizing:border-box;
+  min-height:154px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+  margin-top:14px;
+  padding:14px 10px 12px;
+  border:1px solid #e7e1dc;
+  border-radius:13px;
+  background:#fbfaf8;
+  text-align:center;
+}
+#subscriptionOptions .mk-plan-annual.mk-best-annual{
+  border:2px solid #bf897d;
+  background:linear-gradient(180deg,#fbf1ed 0%,#fffaf8 100%);
+  box-shadow:0 5px 14px rgba(85,100,105,.09);
+}
+#subscriptionOptions .mk-plan-annual .mk-best-label{
+  position:static!important;
+  display:inline-flex!important;
+  align-items:center;
+  justify-content:center;
+  width:auto;
+  max-width:100%;
+  box-sizing:border-box;
+  margin:0 auto 12px!important;
+  padding:10px 17px!important;
+  border:1px solid rgba(255,255,255,.35);
+  border-radius:999px;
+  background:#556469!important;
+  color:#fff!important;
+  font-size:13px!important;
+  line-height:1.2!important;
+  font-weight:850!important;
+  letter-spacing:1.15px!important;
+  white-space:nowrap;
+  box-shadow:0 4px 10px rgba(45,61,65,.2);
+}
+#subscriptionOptions .mk-plan-annual .mk-plan-price{margin:0 0 7px!important}
+#subscriptionOptions .mk-plan-choice .mk-btn{margin-top:7px}
+@media(max-width:680px){
+  #subscriptionOptions.mk-plan-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px!important}
+  #subscriptionOptions .mk-plan,
+  #subscriptionOptions .mk-plan.featured{padding:17px 7px 12px!important}
+  #subscriptionOptions .mk-plan-choice.mk-plan-annual{min-height:142px;padding:11px 5px 9px}
+  #subscriptionOptions .mk-plan-annual .mk-best-label{font-size:10px!important;padding:7px 7px!important;letter-spacing:.45px!important;margin-bottom:10px!important}
+  #subscriptionOptions .mk-plan-price{font-size:clamp(13px,3vw,22px)}
+  #subscriptionOptions .mk-plan-choice .mk-btn{font-size:10px;padding:10px 5px}
+}
+
 </style>
 </head>
 <body>
@@ -639,7 +709,7 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
         '<ul class="mk-plan-includes"><li>'+tier.contents+'</li></ul>'+
         '<div class="mk-plan-choice"><p class="mk-plan-price">'+prices.monthly+'</p><span class="mk-trial">7 DAYS FREE</span><p class="mk-plan-period">Monthly billing after free trial</p>'+
         '<button type="button" class="mk-btn mk-secondary" data-tier="'+tier.level+'" data-billing="monthly">Choose monthly</button></div>'+
-        '<div class="mk-plan-choice mk-plan-annual">'+(tier.level===2?'<span class="mk-best-label">BEST VALUE</span>':'')+'<p class="mk-plan-price">'+prices.annual+'</p><span class="mk-trial">14 DAYS FREE</span><p class="mk-plan-period">Billed annually after free trial</p>'+
+        '<div class="mk-plan-choice mk-plan-annual'+(tier.level===2?' mk-best-annual':'')+'">'+(tier.level===2?'<span class="mk-best-label">✦ BEST VALUE</span>':'')+'<p class="mk-plan-price">'+prices.annual+'</p><span class="mk-trial">14 DAYS FREE</span><p class="mk-plan-period">Billed annually after free trial</p>'+
         '<button type="button" class="mk-btn mk-primary" data-tier="'+tier.level+'" data-billing="annual">Choose annual</button></div>'+
       '</article>';
     }).join("");
