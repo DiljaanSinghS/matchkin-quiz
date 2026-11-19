@@ -300,6 +300,14 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
 @media(max-width:680px){
   #subscriptionPanel{padding:16px 10px!important;width:calc(100vw - 16px)!important;max-height:calc(100vh - 16px)!important}
 }
+
+/* MatchKin staged flow: results first, then plans, then add-ons. */
+#subscriptionPanel.mk-hidden,#resultsStage.mk-hidden,#postSubscription.mk-hidden{display:none!important}
+#subscriptionOptions .mk-yearly-note{margin:10px 0 0;font-weight:700;color:var(--ink);line-height:1.45}
+#subscriptionOptions .mk-yearly-note span{display:block;font-size:11px;font-weight:500;color:var(--muted)}
+#subscriptionOptions .mk-plan-choice{border:0;padding:0;margin:10px 0 0}
+#subscriptionOptions .mk-plan-choice .mk-btn{margin-top:8px}
+#continueAddonsBtn{min-width:130px}
 </style>
 </head>
 <body>
@@ -454,17 +462,18 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
   </div>
 
   <section id="results" class="mk-card mk-results mk-hidden" aria-live="polite">
-    <section class="mk-skin-result" aria-labelledby="skinResultsTitle">
+    <section id="resultsStage" class="mk-skin-result" aria-labelledby="skinResultsTitle">
       <h2 id="skinResultsTitle">Your Skin Quiz Results</h2>
       <p id="resultIntro" class="mk-help"></p>
+      <div class="mk-actions"><button type="button" class="mk-btn mk-primary" id="resultsNextBtn">Next</button></div>
     </section>
-    <section id="subscriptionPanel" class="mk-subscription" aria-labelledby="subscriptionTitle">
+    <section id="subscriptionPanel" class="mk-subscription mk-hidden" aria-labelledby="subscriptionTitle">
       <div class="mk-subscription-head">
         <h2 id="subscriptionTitle">Start your MatchKin subscription</h2>
-        <p>Choose how you'd like to pay for your personalized skincare box.</p>
+        <p>Choose your monthly MatchKin box. Yearly pricing is shown underneath for reference.</p>
       </div>
       <div id="subscriptionOptions" class="mk-plan-grid" style="display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:12px;width:100%;align-items:stretch"></div>
-      <p class="mk-subscription-note">Monthly plans include 7 days free. Annual plans include 14 days free. Choose the billing option that works for you.</p>
+      <p class="mk-subscription-note">Monthly plans display a 7-day trial offer. Trial activation requires recurring billing support. Yearly pricing is displayed for reference; annual checkout is not currently available in VE Hub.</p>
       <div id="trialStatus" class="mk-trial-status mk-hidden" role="status"></div>
     </section>
     <div id="postSubscription" class="mk-hidden">
@@ -480,7 +489,7 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
       <div id="addonsList" class="mk-addon-grid"></div>
       <div class="mk-addon-actions">
         <button type="button" class="mk-btn mk-secondary" id="skipAddonsBtn">Skip add-ons &amp; buy my box</button>
-        <button type="button" class="mk-btn mk-primary" id="continueAddonsBtn">Continue with selected add-ons</button>
+        <button type="button" class="mk-btn mk-primary" id="continueAddonsBtn">Next</button>
       </div>
       <p class="mk-muted-note" id="addonsNote">VE Hub checkout opens separately for each item. The box and add-ons are not combined into one cart.</p>
       <div id="checkoutLinks" class="mk-checkout-list mk-hidden"></div>
@@ -555,6 +564,11 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
     if(!validateStep()) return;
     if(current<steps.length-1) showStep(current+1);
     else buildResults();
+  });
+  $("resultsNextBtn").addEventListener("click",()=>{
+    $("resultsStage").classList.add("mk-hidden");
+    $("subscriptionPanel").classList.remove("mk-hidden");
+    $("subscriptionPanel").scrollIntoView({behavior:"smooth",block:"start"});
   });
   function validateStep(){
     const active=steps[current];
@@ -733,23 +747,20 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
         (tier.level===3?'<div class="mk-plan-ribbon">MOST COMPLETE ROUTINE</div>':'')+
         '<h3>'+tier.name+'</h3><p class="mk-plan-tag">'+tier.tag+'</p>'+
         '<ul class="mk-plan-includes"><li>'+tier.contents+'</li></ul>'+
-        '<div class="mk-plan-choice"><p class="mk-plan-price">'+prices.monthly+'</p><span class="mk-trial">7-DAY TRIAL OFFER</span><p class="mk-plan-period">Trial and recurring monthly billing are not activated in VE Hub yet.</p>'+
-        '<button type="button" class="mk-btn mk-secondary" data-tier="'+tier.level+'" data-billing="monthly">Select monthly</button></div>'+
-        '<div class="mk-plan-choice mk-plan-annual'+(tier.level===2?' mk-best-annual':'')+'">'+(tier.level===2?'<span class="mk-best-label">✦ BEST VALUE</span>':'')+'<p class="mk-plan-price">'+prices.annual+'</p><span class="mk-trial">14-DAY TRIAL OFFER</span><p class="mk-plan-period">Annual checkout is not available in VE Hub yet.</p>'+
-        '<button type="button" class="mk-btn mk-primary" data-tier="'+tier.level+'" data-billing="annual">Preview annual plan</button></div>'+
+        '<div class="mk-plan-choice"><p class="mk-plan-price">'+prices.monthly+'</p><span class="mk-trial">7-DAY TRIAL OFFER</span><p class="mk-plan-period">Monthly plan · trial offer pending recurring billing support</p>'+
+        '<button type="button" class="mk-btn mk-primary" data-tier="'+tier.level+'" data-billing="monthly">Choose '+tier.name+'</button>'+
+        '<p class="mk-plan-period mk-yearly-note">Or '+prices.annual+' billed yearly<br><span>Annual checkout coming soon</span></p></div>'+
       '</article>';
     }).join("");
     $("postSubscription").classList.add("mk-hidden");
     $("trialStatus").classList.add("mk-hidden");
-    $("subscriptionOptions").querySelectorAll("button[data-tier]").forEach(button=>{
+    $("subscriptionOptions").querySelectorAll("button[data-tier][data-billing='monthly']").forEach(button=>{
       button.addEventListener("click",()=>{
         const tier=Number(button.dataset.tier);
-        const billing=button.dataset.billing;
-        buildResults(tier,billing);
+        buildResults(tier,"monthly");
         $("subscriptionPanel").classList.add("mk-hidden");
         const selectedName=tier===1?"KinBasics":tier===2?"KinPlus":"KinComplete";
-        const price=planPrices[selectedName][billing];
-        $("trialStatus").textContent=billing==="annual" ? "Annual plan preview: "+selectedName+" at "+price+". The 14-day trial and annual checkout are not available in VE Hub yet. You can review matching products and add-ons, but checkout will not send you to a monthly purchase link." : "Monthly plan selected: "+selectedName+" at "+price+". The 7-day trial and recurring monthly billing are not activated. The current VE Hub link is a one-time box purchase, not a subscription.";
+        $("trialStatus").textContent="Selected: "+selectedName+" · "+planPrices[selectedName].monthly+". The 7-day trial is shown as an offer; VE Hub currently processes the linked box checkout as a one-time purchase, not an automatically recurring subscription.";
         $("trialStatus").classList.remove("mk-hidden");
         $("postSubscription").classList.remove("mk-hidden");
         $("postSubscription").scrollIntoView({behavior:"smooth",block:"start"});
@@ -833,7 +844,7 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
     }).join("") : '<p class="mk-muted-note">There are no additional products available for this box selection.</p>';
     $("addonsNote").textContent=ingredientReviewPending
       ?"Add-on selection is paused because your avoid-list answers need an ingredient review first. Please contact MatchKin before ordering."
-      :"You can choose extra products or skip this section. Subscription and add-on checkout must be connected before any payment can be taken.";
+      :"Choose any extras, then click Next. You can also skip add-ons and go straight to your box checkout.";
     $("skipAddonsBtn").disabled=ingredientReviewPending;
     $("continueAddonsBtn").disabled=ingredientReviewPending;
     const boxUrls={
@@ -843,24 +854,12 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
     };
     $("skipAddonsBtn").onclick=()=>{
       if(ingredientReviewPending) return;
-      if(chosenBilling==="annual"){
-        $("checkoutLinks").innerHTML='<p class="mk-muted-note"><strong>Annual checkout is not set up yet.</strong> VE Hub Store Manager does not currently provide an annual recurring option, and no separate annual checkout button has been created. Your annual plan selection is saved for this preview; no payment has been started.</p>';
-        $("checkoutLinks").classList.remove("mk-hidden");
-        $("checkoutLinks").scrollIntoView({behavior:"smooth",block:"nearest"});
-        return;
-      }
       $("checkoutLinks").innerHTML='<p class="mk-muted-note"><strong>One-time VE Hub purchase:</strong> this link does not activate a free trial or recurring monthly subscription.</p><div class="mk-checkout-item"><strong>'+safeText(boxName)+' box</strong><a class="mk-buy" href="'+boxUrls[level]+'" target="_blank" rel="noopener noreferrer">Buy box on VE Hub</a></div>';
       $("checkoutLinks").classList.remove("mk-hidden");
       $("checkoutLinks").scrollIntoView({behavior:"smooth",block:"nearest"});
     };
     $("continueAddonsBtn").onclick=()=>{
       if(ingredientReviewPending) return;
-      if(chosenBilling==="annual"){
-        $("checkoutLinks").innerHTML='<p class="mk-muted-note"><strong>Annual checkout is not set up yet.</strong> VE Hub does not currently provide an annual recurring option, and no annual checkout button exists. Your selected add-ons are saved for this preview only; no payment has been started.</p>';
-        $("checkoutLinks").classList.remove("mk-hidden");
-        $("checkoutLinks").scrollIntoView({behavior:"smooth",block:"nearest"});
-        return;
-      }
       const selectedAddons=Array.from($("addonsList").querySelectorAll('input[name="mkAddon"]:checked')).map(el=>el.value);
       const rows=selectedAddons.map(key=>{
         const p=products[key];
@@ -878,7 +877,9 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
     $("giftFields").classList.add("mk-hidden");
     $("giftMessage").classList.add("mk-hidden");
     $("results").classList.add("mk-hidden");
-    $("subscriptionPanel").classList.remove("mk-hidden");
+    $("subscriptionPanel").classList.add("mk-hidden");
+    $("resultsStage").classList.remove("mk-hidden");
+    $("postSubscription").classList.add("mk-hidden");
     $("quiz").classList.remove("mk-hidden");
     showStep(0);
   });
