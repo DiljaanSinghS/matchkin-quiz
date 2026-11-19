@@ -966,8 +966,8 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
         : '<span class="mk-addon-image mk-addon-image-placeholder" role="img" aria-label="Product image coming soon">MatchKin<br>Product image</span>';
       const unavailable=!p.url;
       return '<label class="mk-addon'+(unavailable?' mk-addon-unavailable':'')+'"><input type="checkbox" name="mkAddon" value="'+safeText(key)+'"'+(unavailable?' disabled':'')+'>'+image+'<span class="mk-addon-copy"><strong>'+safeText(p.name)+'</strong><small>'+safeText(p.sku)+' · '+(unavailable?'VE HUB link not added yet':'Optional add-on')+'</small><span class="mk-addon-price">'+safeText(p.price || 'Price pending')+'</span></span></label>';
-    }).join("") : '<p class="mk-muted-note">No additional products are available for this box selection. You can continue straight to checkout.</p>';
-    $("addonsNote").textContent="Choose any extras, then click Next. You can also skip add-ons and go straight to your box checkout."+(ingredientReviewPending?" Ingredient reminder: review each product's ingredient list before purchasing because the quiz does not verify allergy compatibility.":"");
+    }).join("") : (ingredientReviewPending ? '<p class="mk-muted-note">Add-ons are hidden because MatchKin does not yet have verified ingredient lists to check against your avoid-list answers.</p>' : '<p class="mk-muted-note">No additional products match your quiz answers for this box. You can continue straight to checkout.</p>');
+    $("addonsNote").textContent=ingredientReviewPending?"Add-ons are paused because product ingredient lists are not verified against your avoid-list answers. You can continue with your box after checking its ingredients.":"Only add-ons matched to your quiz answers are shown. Choose any extras, or skip this step and go straight to your box checkout.";
     $("skipAddonsBtn").disabled=false;
     $("continueAddonsBtn").disabled=false;
     $("boxNextBtn").onclick=()=>{
