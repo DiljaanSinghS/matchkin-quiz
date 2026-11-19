@@ -372,6 +372,29 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
   #subscriptionOptions .mk-plan-includes{min-height:78px}
 }
 
+
+/* Make the middle KinPlus card the clear Best Value choice. */
+#subscriptionOptions.mk-plan-grid{align-items:center!important;overflow:visible}
+#subscriptionOptions .mk-plan:not(.featured){
+  transform:scale(.97)!important;
+  z-index:1;
+}
+#subscriptionOptions .mk-plan.featured{
+  transform:scale(1.035)!important;
+  z-index:2;
+  border:2px solid #bf897d!important;
+  background:linear-gradient(180deg,#fffaf8 0%,#fff 100%)!important;
+  box-shadow:0 12px 28px rgba(191,137,125,.2)!important;
+}
+#subscriptionOptions .mk-plan.featured h3{color:#556469}
+#subscriptionOptions .mk-plan.featured .mk-plan-choice .mk-btn{
+  background:#bf897d!important;
+}
+@media(max-width:680px){
+  #subscriptionOptions .mk-plan:not(.featured){transform:scale(.96)!important}
+  #subscriptionOptions .mk-plan.featured{transform:scale(1.02)!important}
+}
+
 </style>
 </head>
 <body>
@@ -813,8 +836,8 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
     $("subscriptionOptions").innerHTML=planTiers.map(tier=>{
       const prices=planPrices[tier.name];
       const selected=Number(selectedLevel)===tier.level && !!chosenBilling;
-      return '<article class="mk-plan'+(tier.level===3?' featured':'')+(selected?' mk-plan-selected':'')+'">'+
-        (tier.level===3?'<div class="mk-plan-ribbon">MOST COMPLETE ROUTINE</div>':'')+
+      return '<article class="mk-plan'+(tier.level===2?' featured':'')+(selected?' mk-plan-selected':'')+'">'+
+        (tier.level===2?'<div class="mk-plan-ribbon">BEST VALUE</div>':'')+
         '<h3>'+tier.name+'</h3><p class="mk-plan-tag">'+tier.tag+'</p>'+
         '<ul class="mk-plan-includes"><li>'+tier.contents+'</li></ul>'+
         '<div class="mk-plan-choice"><p class="mk-plan-price">'+prices.monthly+'</p><span class="mk-trial">7-DAY TRIAL OFFER</span><p class="mk-plan-period">Monthly plan · trial offer pending recurring billing support</p>'+
