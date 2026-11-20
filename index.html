@@ -665,6 +665,39 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
     aha: {name:"AHA & BHA Exfoliating Cleanser", sku:"MK-CL-01", price:"$10.30", url:"https://portal.veinternational.org/buybuttons/us0111277/btn/aha-and-bha-exfoliating-cleaner-mk115/", why:"You selected the AHA & BHA exfoliating step."},
     vitamin: {name:"Vitamin C Antioxidant Toner", sku:"MK-TN-03", price:"$9.97", url:"https://portal.veinternational.org/buybuttons/us0111277/btn/vitamin-c-antioxidant-toner-mk118/", why:"You selected city/pollution, dullness/dark spots, or even tone."}
   };
+  // Ingredient references supplied by MatchKin; comparisons are not medical advice.
+  const ingredientLists = {
+    oat:"Aqua, Sodium Cocoyl Glutamate, Glycerin, Cocamidopropyl Betaine, Sodium Lauroyl Oat Amino Acids, Aloe Barbadensis Leaf Powder, Avena Sativa Oat Kernel Oil, Shea Butter Extract, Babassu Seed Oil, Xylitol, Squalane, Anhydroxylitol, Xylitylglucoside, 1,2-Hexanediol, Tocopheryl Acetate, Caprylyl Glycol, Orange Peel Extract, Hydrogenated Phosphatidylcholine, Pentylene Glycol, Propanediol, Hydroxyacetophenone, Xanthan Gum, Ethylhexylglycerin, Potassium Sorbate",
+    peptide:"Aqua, Sodium C14-16 Olefin Sulfonate, Acrylates Copolymer, Cocamidopropyl Hydroxysultaine, Cocamide MIPA, Aloe Barbadensis Leaf Juice, Decyl Glucoside, Glycerin, Proline, Sodium Hyaluronate, PCA, Tripeptide-1, Palmitoyl Tetrapeptide-7, Palmitoyl Tripeptide-5 [source text unclear: Palmitoy| Tripeptide-5], Hexapeptide-9, Radish Root Ferment, Sodium PCA, Isoleucine, Histidine, Horsetail Extract, Centella Asiatica, Threonine, Glycine, Sodium Lactate, Green Tea Leaf Extract, Phenylalanine, Arginine, Aspartic Acid, Alanine, Serine, Valine, Sunflower Seed Oil, Palmitoyl Pentapeptide-4, Sodium Hydroxide, Citric Acid, Sodium Benzoate, Phenoxyethanol, Ethylhexylglycerin, Potassium Sorbate, Polysorbate 20",
+    aha:"Aqua, Sodium Cocoyl Apple Amino Acids, Olive Seed Powder, Glycerin, Lactic Acid, Polyacrylate Crosspolymer-6, Aloe Leaf Powder, Chamomile Flower Extract, Sugarcane Extract, Orange Fruit Extract, Sugar Maple Extract, Radish Root Ferment, Xylitol, Anhydroxylitol, Hydrogenated Jojoba Oil, Xylitylglucoside, Green Tea Leaf Extract, Caesalpinia Spinosa Gum, Sodium Cocoamphoacetate, Ethylhexylglycerin, Glycolic Acid, Cocamidopropyl Hydroxysultaine, Lemon Fruit Extract, Bilberry Fruit Extract, Cranberry Seed Powder, Lychee Seed Powder, Sodium C14-16 Olefin Sulfonate, Salicylic Acid, Sodium Hydroxide, Sodium Phytate, Propanediol, Tartaric Acid, Malic Acid, Hydroxyacetophenone, Citric Acid, Benzyl Alcohol, Sorbic Acid, Potassium Sorbate",
+    green:"Aqua, Aloe Leaf Juice, Chamomile Flower Extract, Hydrolyzed Wheat Protein, Phospholipids, Cucumber Fruit Extract, Tamarind Seed Extract, Saccharomyces Zinc Ferment, Saccharomyces Copper Ferment, Saccharomyces Iron Ferment, Saccharomyces Silicon Ferment, Radish Root Ferment, Saccharomyces Magnesium Ferment, Allantoin, Green Tea Leaf Extract, Glycerin, Caprylyl Glycol, Pentylene Glycol, Sodium Hydroxide, Propanediol, Tetrasodium Glutamate Diacetate, Ethylhexylglycerin, Citric Acid, Sodium Benzoate, Potassium Sorbate",
+    desert:"Water, Aloe Leaf Juice, Glycerin, Phenoxyethanol, Willow Bark Extract, Opunti Tuna Prickly Pear Extract [source spelling unclear], Yucca Root Extract, Sodium PCA, Agave Leaf Extract, Urea, Ethylhexylglycer Polysorbate 20 [source wording unclear], Tea Tree Leaf Oil, Trehalose, Radish Root Ferment, Polyquaternium-51, Sodium Hyaluronate",
+    vitamin:"Aqua, Sodium Ascorbyl Phosphate, Aloe Leaf Juice, Polysorbate 20, Lavender Oil, Ginseng Root Extract, Papaya Fruit Extract, Pea Peptide Extract, Panthenol, Witch Hazel Water, Centella Asiatica Extract, Green Tea Leaf Extract, Glycerin, Caprylyl Glycol, Noni Extract, Pentylene Glycol, Sodium Phytate, Propanediol, Citric Acid, Sodium Benzoate, Ethylhexylglycerin, Potassium Sorbate, Geranium Oil",
+    oil:"Safflower Seed Oil, Grape Seed Oil, Jojoba Seed Oil, Lauryl Laurate, Cetyl Palmitate, Evening Primrose Seed Oil, Black Currant Seed Oil, Tocopherol",
+    ha:"Aqua, Aloe Leaf Juice, Lavender Water, Witch Hazel Water, Glycerit [source wording unclear], Methylsulfonylmethane, Jojoba Seed Oil, Hyaluronic Acid, Chamomile Flower Extract, Hydrolyzed Hyaluronic Acid, Sodium Hyaluronate, Hydrolyzed Glycosaminoglycans, Tremella Polysaccharide, Polyglutamic Acid, Horsetail Extract, Centella Asiatica Extract, Green Tea Leaf Extract, Sodium Ascorbyl Phosphate, Carrageenan, Acrylates/C10-30 Alkyl Acrylate Crosspolymer, Sodium Hydroxide, Hydroxyethylcellulose, Citric Acid, Sodium Benzoate, Phenoxyethanol, Ethylhexylglycerin, Potassium Sorbate, Polysorbate 20",
+    biome:"Aqua, Squalane, Glycerin, C12-16 Alcohols, Polyacrylate Crosspolymer-11, Hyaluronic Acid, Hydrolyzed Hyaluronic Acid, Sodium Hyaluronate, Hydrolyzed Glycosaminoglycans, Tremella Polysaccharide, Polyglutamic Acid, Oat Protein, Polylysine, Shea Butter, Caprylyl Glycol, Palmitic Acid, Oat Kernel Extract, Tocopherol, Pentylene Glycol, Sodium Phytate, Propanediol, Hydroxyacetophenone, Hydroxyethyl Acrylate/Sodium Acryloyldimethyl Taurate Copolymer, Ethylhexylglycerin, Sorbitan Isostearate",
+    marine:"Aqua, Sunflower Seed Oil, Caprylic/Capric Triglyceride, Aloe Leaf Juice, Glyceryl Stearate Citrate, Cetyl Alcohol, Glycerin, Stearic Acid, Avocado Oil, Jojoba Seed Oil, Panthenol, Laminaria Digitata Extract, Kelp Extract, Sodium Hyaluronate, Saccharomyces/Sea Silt Ferment, Green Tea Leaf Extract, Shea Butter, Tocopherol, Carbomer, Sodium Benzoate, Phenoxyethanol, Ethylhexylglycerin, Potassium Sorbate",
+    skin:"Aqua, Sunflower Seed Oil, Caprylic/Capric Triglyceride, Aloe Leaf Juice, Glyceryl Stearate Citrate, Cetyl Alcohol, Stearic Acid, Glycerin, Ethylhexylglycerin, Avocado Oil, Jojoba Seed Oil, Panthenol, Phospholipids, Green Tea Leaf Extract, Retinol, Shea Butter, Tocopherol, Carbomer, Phenoxyethanol",
+    spot:"Aqua, Aloe Leaf Juice, Witch Hazel Extract, Glycerin, Polysorbate 20, Willow Bark Extract, Meadowsweet Extract, Centella Asiatica Extract, Green Tea Leaf Extract, Colloidal Silver, Butylene Glycol, Acrylates/C10-30 Alkyl Acrylate Crosspolymer, Clove Bud Oil, Alcohol, Sodium Hydroxide, Sodium Phytate, Citric Acid, Sodium Benzoate, Potassium Sorbate, Eugenol"
+  };
+  function ingredientStatus(key, avoid, otherTerms) {
+    const list=ingredientLists[key];
+    if(!list) return {status:"review",reason:"Ingredient list not supplied — manual review needed."};
+    const found=[];
+    avoid.forEach(term=>{
+      if(term==="Fragrance" && /\b(fragrance|parfum)\b/i.test(list)) found.push(term);
+      if(term==="Alcohol" && /\b(alcohol|benzyl alcohol)\b/i.test(list)) found.push(term);
+      if(term==="Essential oils" && /\b(lavender|tea tree|geranium oil|clove bud oil)\b/i.test(list)) found.push(term);
+      if(term==="Sulfates" && /\b[a-z0-9 -]+sulfate\b/i.test(list)) found.push(term);
+    });
+    const normalized=list.toLowerCase().replace(/[^a-z0-9]+/g," ");
+    otherTerms.forEach(term=>{
+      const needle=String(term).toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
+      if(needle.length>=3 && normalized.includes(needle)) found.push(term);
+    });
+    if(found.length) return {status:"no",reason:"Contains: "+Array.from(new Set(found)).join(", ")};
+    return {status:"yes",reason:"No selected avoid ingredient found in the supplied list."};
+  }
   const packaging = [
     "Shipping Box (MK-108)", "Tissue Paper (MK-109)", "Crinkle Filler (MK-110)",
     "Sticker Seal (MK-114)", "Shipping-Label Material (MK-113)",
@@ -865,10 +898,10 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
       notices.push("Cotton pads are included in your MatchKin box.");
     }
 
-    // Ingredient lists are not present in the repository, so do not falsely claim that ingredients were checked.
     const ingredientReviewPending=avoid.length>0 || !!otherAvoid;
+    const otherAvoidTerms=otherAvoid.split(/[,;]+/).map(x=>x.trim()).filter(Boolean);
     if(ingredientReviewPending){
-      notices.push("Ingredient reminder: you selected ingredients to avoid or reported an allergy ("+[...avoid,otherAvoid].filter(Boolean).join(", ")+"). The quiz can still show matched products and checkout links, but it does not verify full ingredient lists. Check each product's current ingredient list before purchasing.");
+      notices.push("Ingredient check: add-ons are compared with the ingredient lists supplied to MatchKin. Matches are marked Not Recommended; missing or unclear lists are marked Review Needed. This is not an allergy-safety guarantee. Verify current package ingredients and consult a qualified professional about known allergies.");
     }
 
     const boxName=level===1?"KinBasics":level===2?"KinPlus":"KinComplete";
@@ -984,10 +1017,6 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
       if(goalAnswer==="glow") addAddon("oil");
     }
 
-    // Without verified ingredient lists, do not recommend add-ons when the customer
-    // has entered ingredients to avoid or reported an allergy.
-    if(ingredientReviewPending) addonMatches.clear();
-
     const childAllowed=new Set(["oat","marine","green","ha"]);
     const availableAddons=Array.from(addonMatches).filter(key=>{
       const p=products[key];
@@ -1006,10 +1035,13 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
       const image=addonImageClasses[key]
         ? '<span class="mk-product-image mk-addon-image mk-img-'+addonImageClasses[key]+'" role="img" aria-label="Product photo: '+safeText(p.name)+'"></span>'
         : '<span class="mk-addon-image mk-addon-image-placeholder" role="img" aria-label="Product image coming soon">MatchKin<br>Product image</span>';
-      const unavailable=!p.url;
-      return '<label class="mk-addon'+(unavailable?' mk-addon-unavailable':'')+'"><input type="checkbox" name="mkAddon" value="'+safeText(key)+'"'+(unavailable?' disabled':'')+'>'+image+'<span class="mk-addon-copy"><strong>'+safeText(p.name)+'</strong><small>'+safeText(p.sku)+' · '+(unavailable?'VE HUB link not added yet':'Optional add-on')+'</small><span class="mk-addon-price">'+safeText(p.price || 'Price pending')+'</span></span></label>';
-    }).join("") : (ingredientReviewPending ? '<p class="mk-muted-note">Add-ons are hidden because MatchKin does not yet have verified ingredient lists to check against your avoid-list answers.</p>' : '<p class="mk-muted-note">No more add-ons are available based on your quiz answers. You can continue straight to checkout.</p>');
-    $("addonsNote").textContent=ingredientReviewPending?"Add-ons are paused because product ingredient lists are not verified against your avoid-list answers. You can continue with your box after checking its ingredients.":"Only add-ons matched to your quiz answers are shown. Choose any extras, or skip this step and go straight to your box checkout.";
+      const check=ingredientStatus(key,avoid,otherAvoidTerms);
+      const label=check.status==="yes"?"Recommended":check.status==="no"?"Not Recommended":"Review Needed";
+      const color=check.status==="yes"?"#23834a":check.status==="no"?"#b42318":"#9a6700";
+      const disabled=check.status!=="yes" || !p.url;
+      return '<label class="mk-addon'+(disabled?' mk-addon-unavailable':'')+'"><input type="checkbox" name="mkAddon" value="'+safeText(key)+'"'+(disabled?' disabled':'')+'>'+image+'<span class="mk-addon-copy"><strong>'+safeText(p.name)+'</strong><small>'+safeText(p.sku)+' · Optional add-on</small><span class="mk-addon-price">'+safeText(p.price || 'Price pending')+'</span><small style="display:block;color:'+color+';font-weight:700;margin-top:5px">'+label+'</small><small style="display:block;margin-top:2px">'+safeText(check.reason)+'</small></span></label>';
+    }).join("") : '<p class="mk-muted-note">No more add-ons are available based on your quiz answers. You can continue straight to checkout.</p>';
+    $("addonsNote").textContent="Only add-ons matched to your quiz answers are shown. Products marked Not Recommended or Review Needed cannot be selected. Ingredient comparisons use the lists supplied to MatchKin and are not a guarantee of allergy safety.";
     $("skipAddonsBtn").disabled=false;
     $("continueAddonsBtn").disabled=false;
     $("boxNextBtn").onclick=()=>{
