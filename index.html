@@ -690,12 +690,27 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
       if(term==="Essential oils" && /\b(lavender|tea tree|geranium oil|clove bud oil)\b/i.test(list)) found.push(term);
       if(term==="Sulfates" && /\b[a-z0-9 -]+sulfate\b/i.test(list)) found.push(term);
     });
-    const normalized=list.toLowerCase().replace(/[^a-z0-9]+/g," ");
+    const aliases = {
+      oat:"sodium cocoyl glutamate avena sativa oat kernel oil butyrospermum parkii orbignya oleifera citrus aurantium dulcis",
+      peptide:"sodium c14 16 olefin sulfonate palmitoyl tetrapeptide 7 palmitoyl tripeptide 5",
+      aha:"olea europaea saccharum officinarum citrus aurantium dulcis acer saccharum citrus limon vaccinium myrtillus vaccinium macrocarpon litchi chinensis sodium c14 16 olefin sulfonate",
+      green:"chamomilla recutita cucumis sativus tamarindus indica camellia sinensis",
+      desert:"salix nigra opuntia prickly pear melaleuca alternifolia agave americana",
+      vitamin:"lavandula angustifolia panax ginseng carica papaya pisum sativum hamamelis virginiana centella asiatica camellia sinensis morinda citrifolia pelargonium graveolens",
+      oil:"carthamus tinctorius vitis vinifera simmondsia chinensis oenothera biennis ribes nigrum",
+      ha:"lavandula angustifolia hamamelis virginiana simmondsia chinensis chamomilla recutita equisetum arvense centella asiatica camellia sinensis",
+      biome:"c12 16 alcohols avena sativa butyrospermum parkii",
+      marine:"helianthus annuus persea gratissima simmondsia chinensis laminaria digitata macrocystis pyrifera butyrospermum parkii",
+      skin:"helianthus annuus persea gratissima simmondsia chinensis camellia sinensis butyrospermum parkii",
+      spot:"hamamelis virginiana salix nigra spiraea ulmaria centella asiatica camellia sinensis eugenia caryophyllus"
+    };
+    const normalized=(list+" "+(aliases[key]||"")).toLowerCase().replace(/[^a-z0-9]+/g," ");
     otherTerms.forEach(term=>{
       const needle=String(term).toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
       if(needle.length>=3 && normalized.includes(needle)) found.push(term);
     });
     if(found.length) return {status:"no",reason:"Contains: "+Array.from(new Set(found)).join(", ")};
+    if(["oat","peptide","desert","ha"].includes(key)) return {status:"review",reason:"The supplied ingredient text contains unclear spelling or formatting; confirm the manufacturer's current ingredient list."};
     return {status:"yes",reason:"No selected avoid ingredient found in the supplied list."};
   }
   const packaging = [
