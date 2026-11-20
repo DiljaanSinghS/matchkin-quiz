@@ -938,9 +938,10 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
         (tier.level===2?'<div class="mk-plan-ribbon">BEST VALUE</div>':'')+
         '<h3>'+tier.name+'</h3><p class="mk-plan-tag">'+tier.tag+'</p>'+
         '<ul class="mk-plan-includes"><li>'+tier.contents+'</li></ul>'+
-        '<div class="mk-plan-choice"><p class="mk-plan-price">'+prices.monthly+'</p>'+
+        '<div class="mk-plan-choice"><span class="mk-trial">1-MONTH FREE TRIAL</span>'+
+        '<p class="mk-plan-price">'+prices.monthly+'</p>'+
         '<p class="mk-plan-period mk-yearly-note">Or '+prices.annual+' billed yearly<br><span>Annual checkout coming soon</span></p>'+
-        '<span class="mk-trial">1-MONTH FREE TRIAL</span><p class="mk-plan-period">Monthly plan · trial offer pending recurring billing support</p>'+
+        '<p class="mk-plan-period">Monthly plan · trial offer pending recurring billing support</p>'+
         '<button type="button" class="mk-btn mk-primary" data-tier="'+tier.level+'" data-billing="monthly">Choose '+tier.name+'</button></div>'+
       '</article>';
     }).join("");
