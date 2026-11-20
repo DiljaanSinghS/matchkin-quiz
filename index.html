@@ -113,7 +113,7 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
 #subscriptionOptions .mk-plan{min-width:0;padding:20px 12px 14px;transform:none}
 #subscriptionOptions .mk-plan.featured{padding-top:42px}
 #subscriptionOptions .mk-plan h3{font-size:clamp(13px,1.5vw,20px)}
-#subscriptionOptions .mk-plan-price{font-size:clamp(16px,2vw,25px);letter-spacing:-.4px}
+#subscriptionOptions .mk-plan-price{font-size:clamp(16px,2vw,25px);letter-spacing:-.4px;margin-top:10px}
 #subscriptionOptions .mk-plan-tag,#subscriptionOptions .mk-plan-includes,#subscriptionOptions .mk-plan-period{font-size:clamp(9px,1vw,12px)}
 #subscriptionOptions .mk-plan-choice .mk-btn{font-size:clamp(9px,1vw,12px);padding:10px 5px;white-space:normal}
 @media(max-width:420px){#subscriptionOptions.mk-plan-grid{gap:6px}#subscriptionOptions .mk-plan{padding:17px 7px 10px}#subscriptionOptions .mk-plan.featured{padding-top:39px}}
@@ -849,9 +849,10 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
         (tier.level===2?'<div class="mk-plan-ribbon">BEST VALUE</div>':'')+
         '<h3>'+tier.name+'</h3><p class="mk-plan-tag">'+tier.tag+'</p>'+
         '<ul class="mk-plan-includes"><li>'+tier.contents+'</li></ul>'+
-        '<div class="mk-plan-choice"><p class="mk-plan-price">'+prices.monthly+'</p><span class="mk-trial">1-MONTH FREE TRIAL</span><p class="mk-plan-period">Monthly plan · trial offer pending recurring billing support</p>'+
-        '<button type="button" class="mk-btn mk-primary" data-tier="'+tier.level+'" data-billing="monthly">Choose '+tier.name+'</button>'+
-        '<p class="mk-plan-period mk-yearly-note">Or '+prices.annual+' billed yearly<br><span>Annual checkout coming soon</span></p></div>'+
+        '<div class="mk-plan-choice"><p class="mk-plan-price">'+prices.monthly+'</p>'+
+        '<p class="mk-plan-period mk-yearly-note">Or '+prices.annual+' billed yearly<br><span>Annual checkout coming soon</span></p>'+
+        '<span class="mk-trial">1-MONTH FREE TRIAL</span><p class="mk-plan-period">Monthly plan · trial offer pending recurring billing support</p>'+
+        '<button type="button" class="mk-btn mk-primary" data-tier="'+tier.level+'" data-billing="monthly">Choose '+tier.name+'</button></div>'+
       '</article>';
     }).join("");
     $("postSubscription").classList.add("mk-hidden");
