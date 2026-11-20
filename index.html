@@ -413,6 +413,36 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
   margin-top:6px!important;
 }
 
+/* Final spacing adjustment: keep pricing directly under the included items. */
+#subscriptionOptions .mk-plan{
+  justify-content:flex-start!important;
+}
+#subscriptionOptions .mk-plan-includes{
+  min-height:48px!important;
+  margin-bottom:6px!important;
+}
+#subscriptionOptions .mk-plan-choice{
+  flex:0 0 auto!important;
+  margin:8px 0 0!important;
+  padding:0!important;
+}
+#subscriptionOptions .mk-plan-choice > .mk-plan-price{
+  min-height:0!important;
+  margin:0 0 4px!important;
+  line-height:1.2!important;
+}
+#subscriptionOptions .mk-plan-choice > .mk-yearly-note{
+  min-height:0!important;
+  margin:4px 0 0!important;
+}
+#subscriptionOptions .mk-plan-choice > .mk-trial{
+  margin:8px 0 6px!important;
+}
+#subscriptionOptions .mk-plan-choice > .mk-plan-period:not(.mk-yearly-note){
+  min-height:0!important;
+  margin:0 0 8px!important;
+}
+
 /* Ensure the generated KinPlus card visibly shows its BEST VALUE ribbon. */
 #subscriptionOptions .mk-plan.featured{position:relative!important;padding-top:48px!important;border:2px solid #bf897d!important;}
 #subscriptionOptions .mk-plan.featured .mk-plan-ribbon{display:block!important;position:absolute!important;top:-1px!important;left:-1px!important;right:-1px!important;z-index:10!important;padding:8px 10px!important;border-radius:15px 15px 0 0!important;background:#bf897d!important;color:#fff!important;text-align:center!important;font-size:10px!important;line-height:1.2!important;font-weight:800!important;letter-spacing:1.4px!important;}
