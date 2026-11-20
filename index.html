@@ -682,7 +682,7 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
   };
   function ingredientStatus(key, avoid, otherTerms) {
     const list=ingredientLists[key];
-    if(!list) return {status:"review",reason:"Ingredient list not supplied — manual review needed."};
+    if(!list) return {status:"no",reason:"Ingredient information is not available, so this product is not recommended."};
     const found=[];
     avoid.forEach(term=>{
       if(term==="Fragrance" && /\b(fragrance|parfum)\b/i.test(list)) found.push(term);
@@ -916,7 +916,7 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
     const ingredientReviewPending=avoid.length>0 || !!otherAvoid;
     const otherAvoidTerms=otherAvoid.split(/[,;]+/).map(x=>x.trim()).filter(Boolean);
     if(ingredientReviewPending){
-      notices.push("Ingredient check: add-ons are compared with the ingredient lists supplied to MatchKin. Matches are marked Not Recommended; missing or unclear lists are marked Review Needed. This is not an allergy-safety guarantee. Verify current package ingredients and consult a qualified professional about known allergies.");
+      notices.push("Ingredient check: add-ons are compared with the ingredient lists supplied to MatchKin. Products containing an ingredient you selected to avoid, or without a complete ingredient list, are marked Not Recommended. This is not an allergy-safety guarantee. Verify current package ingredients and consult a qualified professional about known allergies.");
     }
 
     const boxName=level===1?"KinBasics":level===2?"KinPlus":"KinComplete";
@@ -1064,11 +1064,6 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
         reason=ageRestricted ? "This product is not included in the recommendations for the age group selected." : "Your quiz answers do not indicate this product as a match for your current routine.";
         color="#b42318";
         disabled=true;
-      } else if(check.status==="review"){
-        label="Review Needed";
-        reason=check.reason+" It cannot be selected until the ingredient information is confirmed.";
-        color="#9a6700";
-        disabled=true;
       } else {
         label="Recommended";
         reason="Matches your quiz answers, and no selected avoid ingredient was found in the supplied ingredient list.";
@@ -1078,7 +1073,7 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
       disabled=disabled || !p.url;
       return '<label class="mk-addon'+(disabled?' mk-addon-unavailable':'')+'"><input type="checkbox" name="mkAddon" value="'+safeText(key)+'"'+(disabled?' disabled':'')+'>'+image+'<span class="mk-addon-copy"><strong>'+safeText(p.name)+'</strong><small>'+safeText(p.sku)+' · Optional add-on</small><span class="mk-addon-price">'+safeText(p.price || 'Price pending')+'</span><small style="display:block;color:'+color+';font-weight:700;margin-top:5px">'+label+'</small><small style="display:block;margin-top:2px">'+safeText(reason)+'</small></span></label>';
     }).join("") : '<p class="mk-muted-note">No optional add-ons are available for this box.</p>';
-    $("addonsNote").textContent="All available add-on products are shown, except items already included in your box. Recommended means the product matches your quiz answers and no selected avoid ingredient was found in its supplied list. Not Recommended means it does not match your answers or a selected avoid ingredient was found. Review Needed appears only when a product matches your answers but its ingredient list is missing or unclear. Not Recommended and Review Needed products cannot be selected. Ingredient comparisons are not a guarantee of allergy safety.";
+    $("addonsNote").textContent="Available add-ons are shown, except items already included in your box. Recommended products match your quiz answers and have no selected avoid ingredient found in the supplied ingredient list. Not Recommended products do not match your answers, contain an ingredient you selected to avoid, or do not have a complete ingredient list. Only Recommended add-ons can be selected. Ingredient comparisons are not a guarantee of allergy safety."
     $("skipAddonsBtn").disabled=false;
     $("continueAddonsBtn").disabled=false;
     $("boxNextBtn").onclick=()=>{
