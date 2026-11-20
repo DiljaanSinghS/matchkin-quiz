@@ -710,7 +710,7 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
       if(needle.length>=3 && normalized.includes(needle)) found.push(term);
     });
     if(found.length) return {status:"no",reason:"Contains: "+Array.from(new Set(found)).join(", ")};
-    if(["oat","peptide","desert","ha"].includes(key)) return {status:"review",reason:"The supplied ingredient text contains unclear spelling or formatting; confirm the manufacturer's current ingredient list."};
+    if(["peptide","desert","ha"].includes(key)) return {status:"review",reason:"The supplied ingredient text contains unclear spelling or formatting; confirm the manufacturer's current ingredient list."};
     return {status:"yes",reason:"No selected avoid ingredient found in the supplied list."};
   }
   const packaging = [
