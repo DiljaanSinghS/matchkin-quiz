@@ -570,7 +570,7 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
         <p>Choose your monthly MatchKin box. Yearly pricing is shown underneath for reference.</p>
       </div>
       <div id="subscriptionOptions" class="mk-plan-grid" style="display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:12px;width:100%;align-items:stretch"></div>
-      <p class="mk-subscription-note">Monthly plans display a 7-day trial offer. Trial activation requires recurring billing support. Yearly pricing is displayed for reference; annual checkout is not currently available in VE Hub.</p>
+      <p class="mk-subscription-note">Monthly plans display a 1-month free trial offer. Trial activation requires recurring billing support. Yearly pricing is displayed for reference; annual checkout is not currently available in VE Hub.</p>
       <div id="trialStatus" class="mk-trial-status mk-hidden" role="status"></div>
     </section>
     <div id="postSubscription" class="mk-hidden">
@@ -849,7 +849,7 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
         (tier.level===2?'<div class="mk-plan-ribbon">BEST VALUE</div>':'')+
         '<h3>'+tier.name+'</h3><p class="mk-plan-tag">'+tier.tag+'</p>'+
         '<ul class="mk-plan-includes"><li>'+tier.contents+'</li></ul>'+
-        '<div class="mk-plan-choice"><p class="mk-plan-price">'+prices.monthly+'</p><span class="mk-trial">7-DAY TRIAL OFFER</span><p class="mk-plan-period">Monthly plan · trial offer pending recurring billing support</p>'+
+        '<div class="mk-plan-choice"><p class="mk-plan-price">'+prices.monthly+'</p><span class="mk-trial">1-MONTH FREE TRIAL</span><p class="mk-plan-period">Monthly plan · trial offer pending recurring billing support</p>'+
         '<button type="button" class="mk-btn mk-primary" data-tier="'+tier.level+'" data-billing="monthly">Choose '+tier.name+'</button>'+
         '<p class="mk-plan-period mk-yearly-note">Or '+prices.annual+' billed yearly<br><span>Annual checkout coming soon</span></p></div>'+
       '</article>';
@@ -862,7 +862,7 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
         buildResults(tier,"monthly");
         $("subscriptionPanel").classList.add("mk-hidden");
         const selectedName=tier===1?"KinBasics":tier===2?"KinPlus":"KinComplete";
-        $("trialStatus").textContent="Selected: "+selectedName+" · "+planPrices[selectedName].monthly+". The 7-day trial is shown as an offer; VE Hub currently processes the linked box checkout as a one-time purchase, not an automatically recurring subscription.";
+        $("trialStatus").textContent="Selected: "+selectedName+" · "+planPrices[selectedName].monthly+". The 1-month free trial is shown as an offer; VE Hub currently processes the linked box checkout as a one-time purchase, not an automatically recurring subscription.";
         $("trialStatus").classList.remove("mk-hidden");
         $("postSubscription").classList.remove("mk-hidden");
         $("postSubscription").scrollIntoView({behavior:"smooth",block:"start"});
