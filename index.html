@@ -497,8 +497,7 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
           <label class="mk-option"><input type="radio" name="cleanserFeel" value="dry" required> Tight or flaky</label>
           <label class="mk-option"><input type="radio" name="cleanserFeel" value="reactive"> Stings or turns red</label>
           <label class="mk-option"><input type="radio" name="cleanserFeel" value="comfortable"> Comfortable or a bit mixed</label>
-          <label class="mk-option"><input type="radio" name="cleanserFeel" value="clogged"> Shiny, clogged, or blackheads</label>
-        </div>
+          <label class="mk-option"><input type="radio" name="cleanserFeel" value="clogged"> Shiny, clogged, or blackheads</label>        </div>
       </section>
 
       <section class="mk-card mk-hidden" data-step="2">
@@ -926,9 +925,9 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
       KinComplete:{monthly:"$99.99/month",annual:"$999.99/year"}
     };
     const planTiers=[
-      {level:1,name:"KinBasics",tag:"A simple daily skincare routine",contents:"1 cleanser + 1 moisturizer"},
-      {level:2,name:"KinPlus",tag:"Your basics plus an exfoliating step",contents:"KinBasics contents + 1 exfoliator"},
-      {level:3,name:"KinComplete",tag:"The complete MatchKin routine",contents:"KinPlus contents + 1 toner + 1 Hyaluronic Acid Serum + Cotton Pads + 1 bonus"}
+      {level:1,name:"KinBasics",description:"Build your first skincare routine with a personalized box of essentials. Take the Skin Twin Quiz to find products recommended by people with a similar skin type, tone, and concerns. Includes a cleanser, moisturizer, and toner."},
+      {level:2,name:"KinPlus",description:"Build on your skincare basics with a personalized box for a more consistent routine. Rate what you try so future boxes reflect positive results and skip products you still have. Includes KinBasics and an exfoliator."},
+      {level:3,name:"KinComplete",description:"Build a more complete skincare routine with MatchKin’s most comprehensive box. KinComplete includes everything in KinPlus, plus a hyaluronic acid serum, cotton pads, and a bonus add-on."}
     ];
     $("subscriptionTitle").textContent="Choose your MatchKin subscription";
     $("subscriptionOptions").innerHTML=planTiers.map(tier=>{
@@ -936,8 +935,7 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
       const selected=Number(selectedLevel)===tier.level && !!chosenBilling;
       return '<article class="mk-plan'+(tier.level===2?' featured':'')+(selected?' mk-plan-selected':'')+'">'+
         (tier.level===2?'<div class="mk-plan-ribbon">BEST VALUE</div>':'')+
-        '<h3>'+tier.name+'</h3><p class="mk-plan-tag">'+tier.tag+'</p>'+
-        '<ul class="mk-plan-includes"><li>'+tier.contents+'</li></ul>'+
+        '<h3>'+tier.name+'</h3><p class="mk-plan-tag">'+tier.description+'</p>'+
         '<div class="mk-plan-choice"><span class="mk-trial">1-MONTH FREE TRIAL</span>'+
         '<p class="mk-plan-price">'+prices.monthly+'</p>'+
         '<p class="mk-plan-period mk-yearly-note">Or '+prices.annual+' billed yearly<br><span>Annual checkout coming soon</span></p>'+
@@ -997,8 +995,7 @@ body{margin:0;padding:22px;font-family:"DM Sans",-apple-system,BlinkMacSystemFon
     if(level===3){includedKeys.add("ha");includedKeys.add("cotton");}
     if(level>=2 && slots.exfoliator.length){const ex=winner("exfoliator");if(ex)includedKeys.add(ex.key);}
     if(level===3){const bonus=winner("bonus");if(bonus)includedKeys.add(bonus.key);}
-    // Build add-ons from the customer's actual quiz answers, not the full catalog.
-    // A product is considered only when an answer gives it a clear routine match.
+    // Build add-ons from the customer's actual quiz answers, not the full catalog.    // A product is considered only when an answer gives it a clear routine match.
     const addonMatches=new Set();
     const addAddon=key=>{if(products[key]?.url) addonMatches.add(key);};
     const climateAnswer=selected("climate");
